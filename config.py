@@ -3,7 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-TOKEN = os.getenv("TOKEN")
+import os
+
+TOKEN = os.environ["DISCORD_TOKEN"]
 
 PREFIX = "."
 
