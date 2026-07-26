@@ -1,78 +1,70 @@
 import discord
+from datetime import datetime
 
 
-class Embed:
-
-    @staticmethod
-    def success(description: str):
-
-        return discord.Embed(
-            colour=0x2ECC71,
-            description=f"✅ {description}"
-        )
+COLOR_MAIN = 0x2ECC71
+COLOR_ERROR = 0xE74C3C
+COLOR_WARNING = 0xF1C40F
 
 
-    @staticmethod
-    def error(description: str):
 
-        return discord.Embed(
-            colour=0xE74C3C,
-            description=f"❌ {description}"
-        )
+def createEmbed(
+    title,
+    description,
+    color=COLOR_MAIN
+):
 
-
-    @staticmethod
-    def warning(description: str):
-
-        return discord.Embed(
-            colour=0xF1C40F,
-            description=f"⚠️ {description}"
-        )
+    embed = discord.Embed(
+        title=title,
+        description=description,
+        colour=color,
+        timestamp=datetime.utcnow()
+    )
 
 
-    @staticmethod
-    def info(title: str, description: str):
-
-        embed = discord.Embed(
-            title=title,
-            description=description,
-            colour=0x5865F2
-        )
-
-        embed.set_footer(
-            text="Swoosh Casino"
-        )
-
-        return embed
+    embed.set_footer(
+        text="Swoosh Casino • 1 Point = £0.005 LTC"
+    )
 
 
-    @staticmethod
-    def casino(title: str, description: str):
-
-        embed = discord.Embed(
-            title=title,
-            description=description,
-            colour=0x00B894
-        )
-
-        embed.set_footer(
-            text="Swoosh Casino • Provably Fair"
-        )
-
-        return embed
+    return embed
 
 
-    @staticmethod
-    def game(title: str, description: str):
 
-        embed = discord.Embed(
-            title=title,
-            description=description,
-            colour=0x0099FF
-        )
+def success(message):
 
-        embed.set_footer(
-            text="Good Luck!"
-        )
+    return createEmbed(
+        "✅ Success",
+        message,
+        COLOR_MAIN
+    )
 
-        return embed
+
+
+def error(message):
+
+    return createEmbed(
+        "❌ Error",
+        message,
+        COLOR_ERROR
+    )
+
+
+
+def warning(message):
+
+    return createEmbed(
+        "⚠️ Warning",
+        message,
+        COLOR_WARNING
+    )
+
+
+
+def info(message):
+
+    return createEmbed(
+        "ℹ️ Information",
+        message,
+        COLOR_MAIN
+    )
