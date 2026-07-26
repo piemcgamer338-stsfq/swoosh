@@ -51,6 +51,12 @@ def create_stats_image(
 ):
 
     image = Image.open(BASE_IMAGE).convert("RGBA")
+
+# Make the final image much larger
+image = image.resize(
+    (2560, 1440),
+    Image.LANCZOS
+)
     draw = ImageDraw.Draw(image)
 
     # Avatar
