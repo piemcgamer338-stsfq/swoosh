@@ -126,47 +126,55 @@ def create_limbo_image(
 
 
 
-    # HUGE AUTO SIZED TEXT
+# EXTREME BIG TEXT
 
-    multiplier_font = fit_font(
-        draw,
-        multiplier_text,
-        width * 0.85,
-        int(height * 0.45)
-    )
+multiplier_font = get_font(450)
+result_font = get_font(180)
 
 
-    result_font = fit_font(
-        draw,
-        result_text,
-        width * 0.75,
-        int(height * 0.18)
-    )
+multiplier_box = draw.textbbox(
+    (0, 0),
+    multiplier_text,
+    font=multiplier_font
+)
+
+multiplier_width = multiplier_box[2] - multiplier_box[0]
+
+
+draw.text(
+    (
+        (width - multiplier_width) // 2,
+        height * 0.18
+    ),
+    multiplier_text,
+    font=multiplier_font,
+    fill=multiplier_color,
+    stroke_width=12,
+    stroke_fill=(0,0,0)
+)
 
 
 
-    # multiplier
+result_box = draw.textbbox(
+    (0, 0),
+    result_text,
+    font=result_font
+)
 
-    x = center_position(
-        draw,
-        multiplier_text,
-        multiplier_font,
-        width
-    )
+result_width = result_box[2] - result_box[0]
 
 
-    draw.text(
-        (
-            x,
-            height * 0.20
-        ),
-        multiplier_text,
-        font=multiplier_font,
-        fill=multiplier_color,
-        stroke_width=10,
-        stroke_fill=(0,0,0)
-    )
-
+draw.text(
+    (
+        (width-result_width)//2,
+        height * 0.70
+    ),
+    result_text,
+    font=result_font,
+    fill=(255,255,255),
+    stroke_width=8,
+    stroke_fill=(0,0,0)
+)
 
 
     # win lose
