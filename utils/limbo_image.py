@@ -21,9 +21,28 @@ def get_font(size):
                 size
             )
         except:
-            continue
+            pass
 
     return ImageFont.load_default()
+
+
+
+def center_text(
+    draw,
+    text,
+    font,
+    width
+):
+
+    box = draw.textbbox(
+        (0,0),
+        text,
+        font=font
+    )
+
+    text_width = box[2] - box[0]
+
+    return (width - text_width) // 2
 
 
 
@@ -55,9 +74,7 @@ def create_limbo_image(
 
 
 
-    multiplier_text = (
-        f"{multiplier:.2f}x"
-    )
+    multiplier_text = f"{multiplier:.2f}x"
 
 
     result_text = (
@@ -77,70 +94,62 @@ def create_limbo_image(
 
 
 
-    # BIG CASINO TEXT
+    # EXTREME LARGE SIZE
 
     multiplier_font = get_font(
-        450
+        int(height * 0.85)
     )
 
 
     result_font = get_font(
-        180
+        int(height * 0.25)
     )
 
 
 
-    # MULTIPLIER TEXT
+    # MULTIPLIER
 
-    box = draw.textbbox(
-        (0,0),
+    x = center_text(
+        draw,
         multiplier_text,
-        font=multiplier_font
-    )
-
-
-    multiplier_width = (
-        box[2] - box[0]
+        multiplier_font,
+        width
     )
 
 
     draw.text(
         (
-            (width - multiplier_width)//2,
-            height * 0.15
+            x,
+            height * 0.02
         ),
         multiplier_text,
         font=multiplier_font,
         fill=multiplier_color,
-        stroke_width=12,
+        stroke_width=15,
         stroke_fill=(0,0,0)
     )
 
 
 
-    # WIN / LOSE TEXT
+    # WIN / LOSE
 
-    box = draw.textbbox(
-        (0,0),
+    x = center_text(
+        draw,
         result_text,
-        font=result_font
-    )
-
-
-    result_width = (
-        box[2] - box[0]
+        result_font,
+        width
     )
 
 
     draw.text(
         (
-            (width-result_width)//2,
+            x,
             height * 0.72
         ),
         result_text,
         font=result_font,
         fill=(255,255,255),
-        stroke_width=8,
+        stroke_width=10,
         stroke_fill=(0,0,0)
     )
 
@@ -151,15 +160,15 @@ def create_limbo_image(
     )
 
 
-    path = os.path.join(
+    output = os.path.join(
         "assets",
         filename
     )
 
 
     image.save(
-        path
+        output
     )
 
 
-    return path
+    return output
