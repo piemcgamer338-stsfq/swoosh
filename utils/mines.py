@@ -1,5 +1,4 @@
 import hashlib
-import hmac
 
 
 
@@ -11,27 +10,14 @@ def generate_mines(
     mine_count=3
 ):
 
-    """
-    Provably fair mine positions generator.
-
-    Board:
-    5x5 = 25 cells
-
-    Returns:
-    list of mine indexes
-    """
-
-    message = (
-        f"{client_seed}:{nonce}:mines"
+    data = (
+        f"{server_seed}:{client_seed}:{nonce}:mines"
     )
 
 
-    hash_result = hmac.new(
-        server_seed.encode(),
-        message.encode(),
-        hashlib.sha256
+    hash_result = hashlib.sha256(
+        data.encode()
     ).hexdigest()
-
 
 
     mines = []
@@ -39,22 +25,23 @@ def generate_mines(
     cursor = 0
 
 
+
     while len(mines) < mine_count:
 
-        chunk = hash_result[
-            cursor:cursor+8
-        ]
 
-
-        if len(chunk) < 8:
+        if cursor + 8 > len(hash_result):
 
             hash_result = hashlib.sha256(
                 hash_result.encode()
             ).hexdigest()
 
             cursor = 0
-            continue
 
+
+
+        chunk = hash_result[
+            cursor:cursor + 8
+        ]
 
 
         number = int(
@@ -63,7 +50,9 @@ def generate_mines(
         )
 
 
-        position = number % total_cells
+        position = (
+            number % total_cells
+        )
 
 
         if position not in mines:
@@ -75,14 +64,6 @@ def generate_mines(
 
         cursor += 8
 
-
-        if cursor >= len(hash_result):
-
-            hash_result = hashlib.sha256(
-                hash_result.encode()
-            ).hexdigest()
-
-            cursor = 0
 
 
     return mines
