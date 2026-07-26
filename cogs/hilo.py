@@ -299,7 +299,7 @@ class HiLo(commands.Cog):
         )
 
 
-        if balance < amount:
+                if balance < amount:
 
             return await ctx.reply(
                 "Not enough balance."
@@ -330,7 +330,8 @@ class HiLo(commands.Cog):
             image_path,
             filename="card.png"
         )
-          embed = discord.Embed(
+
+        embed = discord.Embed(
             title="HiLo",
             colour=0x2ECC71
         )
@@ -362,20 +363,14 @@ class HiLo(commands.Cog):
 
 
         try:
-
             os.remove(
                 image_path
             )
-
         except:
-
             pass
 
 
-
-async def setup(
-    bot
-):
+async def setup(bot):
 
     await bot.add_cog(
         HiLo(bot)
