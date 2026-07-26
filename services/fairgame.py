@@ -1,4 +1,6 @@
-import asyncio
+import asyncpg
+
+from database import get_pool
 
 from utils.fair import (
     generate_server_seed,
@@ -6,12 +8,11 @@ from utils.fair import (
     generate_client_seed
 )
 
-from database import get_db
 
 
 async def create_fair_game(
     user_id,
-    game_type,
+    game,
     amount
 ):
 
@@ -24,44 +25,59 @@ async def create_fair_game(
     client_seed = generate_client_seed()
 
 
-    db = await get_db()
+    pool = await get_pool()
 
 
-    game = await db.fetch_one(
-        """
-        INSERT INTO game_history
-        (
+    async with pool.acquire() as conn:
+
+
+        row = await conn.fetchrow(
+            """
+            INSERT INTO game_history
+            (
+                discord_id,
+                game,
+                bet,
+                result,
+                multiplier,
+                profit,
+                server_seed_hash,
+                server_seed,
+                client_seed,
+                nonce
+            )
+
+            VALUES
+            (
+                $1,
+                $2,
+                $3,
+                $4,
+                $5,
+                $6,
+                $7,
+                $8,
+                $9,
+                $10
+            )
+
+            RETURNING *
+            """,
+
             user_id,
-            game_type,
+            game,
             amount,
-            server_seed,
+            "pending",
+            0,
+            0,
             server_seed_hash,
+            server_seed,
             client_seed,
-            nonce,
-            result,
-            multiplier,
-            profit
+            0
         )
-        VALUES
-        (
-            $1,$2,$3,$4,$5,$6,$7,$8,$9,$10
-        )
-        RETURNING *
-        """,
-        user_id,
-        game_type,
-        amount,
-        server_seed,
-        server_seed_hash,
-        client_seed,
-        0,
-        "pending",
-        0,
-        0
-    )
 
 
-    return dict(game)
+    return dict(row)
 
 
 
@@ -73,22 +89,26 @@ async def finish_fair_game(
     profit
 ):
 
-    db = await get_db()
+    pool = await get_pool()
 
 
-    await db.execute(
-        """
-        UPDATE game_history
+    async with pool.acquire() as conn:
 
-        SET
-            result = $1,
-            multiplier = $2,
-            profit = $3
 
-        WHERE id = $4
-        """,
-        result,
-        multiplier,
-        profit,
-        game_id
-    )
+        await conn.execute(
+            """
+            UPDATE game_history
+
+            SET
+                result = $1,
+                multiplier = $2,
+                profit = $3
+
+            WHERE id = $4
+            """,
+
+            result,
+            multiplier,
+            profit,
+            game_id
+        )
