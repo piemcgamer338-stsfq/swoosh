@@ -19,130 +19,178 @@ async def get_pool():
     return pool
 
 
+
 async def setup_database():
 
     db = await get_pool()
 
     async with db.acquire() as conn:
 
-        await conn.execute("""
-        CREATE TABLE IF NOT EXISTS users (
 
-            discord_id BIGINT PRIMARY KEY,
+        # USERS
 
-            balance DOUBLE PRECISION DEFAULT 0,
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
 
-            vault DOUBLE PRECISION DEFAULT 0,
+                discord_id BIGINT PRIMARY KEY,
 
-            wager DOUBLE PRECISION DEFAULT 0,
+                balance DOUBLE PRECISION DEFAULT 0,
 
-            weekly_wager DOUBLE PRECISION DEFAULT 0,
+                vault DOUBLE PRECISION DEFAULT 0,
 
-            rb_wager DOUBLE PRECISION DEFAULT 0,
+                wager DOUBLE PRECISION DEFAULT 0,
 
-            deposited DOUBLE PRECISION DEFAULT 0,
+                weekly_wager DOUBLE PRECISION DEFAULT 0,
 
-            affiliate_by BIGINT,
+                rb_wager DOUBLE PRECISION DEFAULT 0,
 
-            affiliate_earnings DOUBLE PRECISION DEFAULT 0,
+                deposited DOUBLE PRECISION DEFAULT 0,
 
-            withdraw_allowed BOOLEAN DEFAULT FALSE,
+                withdrawn DOUBLE PRECISION DEFAULT 0,
 
-            created_at TIMESTAMP DEFAULT NOW()
+                affiliate_by BIGINT,
 
-        );
-        """)
+                affiliate_earnings DOUBLE PRECISION DEFAULT 0,
 
-        await conn.execute("""
-        CREATE TABLE IF NOT EXISTS withdrawals (
+                withdraw_allowed BOOLEAN DEFAULT FALSE,
 
-            id SERIAL PRIMARY KEY,
+                created_at TIMESTAMP DEFAULT NOW()
 
-            discord_id BIGINT,
+            );
+            """
+        )
 
-            amount DOUBLE PRECISION,
 
-            address TEXT,
+        # DEPOSITS
 
-            status TEXT DEFAULT 'Pending',
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS deposits (
 
-            created_at TIMESTAMP DEFAULT NOW()
+                id SERIAL PRIMARY KEY,
 
-        );
-        """)
+                discord_id BIGINT,
 
-        await conn.execute("""
-        CREATE TABLE IF NOT EXISTS deposits (
+                txid TEXT,
 
-            id SERIAL PRIMARY KEY,
+                amount DOUBLE PRECISION,
 
-            discord_id BIGINT,
+                status TEXT DEFAULT 'Pending',
 
-            txid TEXT,
+                created_at TIMESTAMP DEFAULT NOW()
 
-            amount DOUBLE PRECISION,
+            );
+            """
+        )
 
-            status TEXT DEFAULT 'Pending',
 
-            created_at TIMESTAMP DEFAULT NOW()
+        # WITHDRAWALS
 
-        );
-        """)
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS withdrawals (
 
-        await conn.execute("""
-        CREATE TABLE IF NOT EXISTS threads (
+                id SERIAL PRIMARY KEY,
 
-            id SERIAL PRIMARY KEY,
+                discord_id BIGINT,
 
-            owner_id BIGINT,
+                amount DOUBLE PRECISION,
 
-            thread_id BIGINT UNIQUE,
+                address TEXT,
 
-            created_at TIMESTAMP DEFAULT NOW()
+                status TEXT DEFAULT 'Pending',
 
-        );
-        """)
+                created_at TIMESTAMP DEFAULT NOW()
 
-        await conn.execute("""
-        CREATE TABLE IF NOT EXISTS house (
+            );
+            """
+        )
 
-            id INTEGER PRIMARY KEY,
 
-            balance DOUBLE PRECISION DEFAULT 80
+        # THREADS
 
-        );
-        """)
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS threads (
 
-        await conn.execute("""
-        INSERT INTO house(id,balance)
+                id SERIAL PRIMARY KEY,
 
-        VALUES(1,80)
+                owner_id BIGINT,
 
-        ON CONFLICT(id)
+                thread_id BIGINT UNIQUE,
 
-        DO NOTHING;
-        """)
+                created_at TIMESTAMP DEFAULT NOW()
 
-        await conn.execute("""
-        CREATE TABLE IF NOT EXISTS game_history (
+            );
+            """
+        )
 
-            id SERIAL PRIMARY KEY,
 
-            discord_id BIGINT,
+        # HOUSE BALANCE
 
-            game TEXT,
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS house (
 
-            bet DOUBLE PRECISION,
+                id INTEGER PRIMARY KEY,
 
-            result TEXT,
+                balance DOUBLE PRECISION DEFAULT 80
 
-            multiplier DOUBLE PRECISION,
+            );
 
-            profit DOUBLE PRECISION,
 
-            created_at TIMESTAMP DEFAULT NOW()
+            INSERT INTO house(
+                id,
+                balance
+            )
 
-        );
-        """)
+            VALUES(
+                1,
+                80
+            )
 
-    print("✅ Database ready")
+            ON CONFLICT(id)
+
+            DO NOTHING;
+
+            """
+        )
+
+
+        # GAME HISTORY + PROVABLY FAIR
+
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS game_history (
+
+                id SERIAL PRIMARY KEY,
+
+                discord_id BIGINT,
+
+                game TEXT,
+
+                bet DOUBLE PRECISION,
+
+                result TEXT,
+
+                multiplier DOUBLE PRECISION,
+
+                profit DOUBLE PRECISION,
+
+                server_seed_hash TEXT,
+
+                server_seed TEXT,
+
+                client_seed TEXT,
+
+                nonce INTEGER DEFAULT 0,
+
+                created_at TIMESTAMP DEFAULT NOW()
+
+            );
+            """
+        )
+
+
+        print("✅ Database ready")
