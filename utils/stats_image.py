@@ -24,14 +24,7 @@ def get_font(size):
     return ImageFont.load_default()
 
 
-def draw_text(
-    draw,
-    x,
-    y,
-    text,
-    size,
-    colour=(255, 255, 255)
-):
+def draw_text(draw, x, y, text, size, colour=(255,255,255)):
 
     font = get_font(size)
 
@@ -40,8 +33,8 @@ def draw_text(
         str(text),
         font=font,
         fill=colour,
-        stroke_width=3,
-        stroke_fill=(0, 0, 0)
+        stroke_width=4,
+        stroke_fill=(0,0,0)
     )
 
 
@@ -59,117 +52,59 @@ def create_stats_image(
 
     image = Image.open(BASE_IMAGE).convert("RGBA")
 
-    image = image.resize(
-        (2560, 1440),
-        Image.LANCZOS
-    )
-
     draw = ImageDraw.Draw(image)
 
     width, height = image.size
 
 
-    response = requests.get(
-        avatar_url
-    )
+    response = requests.get(avatar_url)
 
     avatar = Image.open(
         BytesIO(response.content)
     ).convert("RGBA")
 
-    avatar = avatar.resize(
-        (420, 420)
-    )
+    avatar = avatar.resize((180,180))
 
-    mask = Image.new(
-        "L",
-        (420, 420),
-        0
-    )
+    mask = Image.new("L",(180,180),0)
 
     ImageDraw.Draw(mask).ellipse(
-        (0, 0, 420, 420),
+        (0,0,180,180),
         fill=255
     )
 
     image.paste(
         avatar,
-        (120, 120),
+        (60,60),
         mask
     )
 
 
+    # HUGE username
     draw_text(
         draw,
-        650,
-        120,
+        280,
+        55,
         username,
-        120
+        72
     )
 
-    draw_text(
-        draw,
-        650,
-        330,
-        f"Balance: {balance:,.2f}",
-        70
-    )
+    # VERY BIG stats
+    draw_text(draw,280,180,f"Balance: {balance:,.2f}",52)
+    draw_text(draw,280,245,f"Vault: {vault:,.2f}",52)
+    draw_text(draw,280,310,f"Wagered: {wager:,.2f}",52)
+    draw_text(draw,280,375,f"Deposited: {deposited:,.2f}",52)
+    draw_text(draw,280,440,f"Withdrawn: {withdrawn:,.2f}",52)
+    draw_text(draw,280,505,f"Affiliate: {affiliate:,.2f}",52)
+    draw_text(draw,280,570,f"Joined: {join_date}",48)
 
-    draw_text(
-        draw,
-        650,
-        430,
-        f"Vault: {vault:,.2f}",
-        70
-    )
 
-    draw_text(
-        draw,
-        650,
-        530,
-        f"Wagered: {wager:,.2f}",
-        70
-    )
+    filename=f"stats_{uuid.uuid4().hex}.png"
 
-    draw_text(
-        draw,
-        650,
-        630,
-        f"Deposited: {deposited:,.2f}",
-        70
-    )
-
-    draw_text(
-        draw,
-        650,
-        730,
-        f"Withdrawn: {withdrawn:,.2f}",
-        70
-    )
-
-    draw_text(
-        draw,
-        650,
-        830,
-        f"Affiliate: {affiliate:,.2f}",
-        70
-    )
-
-    draw_text(
-        draw,
-        650,
-        930,
-        f"Joined: {join_date}",
-        60
-    )
-
-    filename = f"stats_{uuid.uuid4().hex}.png"
-
-    output = os.path.join(
+    path=os.path.join(
         "assets",
         filename
     )
 
-    image.save(output)
+    image.save(path)
 
-    return output
+    return path
