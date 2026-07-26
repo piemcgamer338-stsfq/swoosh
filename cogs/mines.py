@@ -1,6 +1,4 @@
 import discord
-import random
-import asyncio
 
 from discord.ext import commands
 from discord.ui import View, Button
@@ -16,12 +14,48 @@ from services.fairgame import (
     finish_fair_game
 )
 
+from utils.mines import generate_mines
+
+
 GREEN_COIN = "<:Based_GreenCoin:1530472181434155111>"
+
+
+class MinesGame:
+
+    def __init__(
+        self,
+        user_id,
+        amount,
+        fair
+    ):
+
+        self.user_id = user_id
+        self.amount = amount
+
+        self.fair_id = fair["id"]
+
+        self.mines = generate_mines(
+            fair["server_seed"],
+            fair["client_seed"],
+            fair["nonce"],
+            25,
+            3
+        )
+
+        self.safe = 0
+        self.finished = False
+        self.clicked = []
+
 
 
 class MinesButton(Button):
 
-    def __init__(self, index, game):
+    def __init__(
+        self,
+        index,
+        game
+    ):
+
         super().__init__(
             label="⬜",
             style=discord.ButtonStyle.secondary,
@@ -32,9 +66,15 @@ class MinesButton(Button):
         self.game = game
 
 
-    async def callback(self, interaction):
+
+    async def callback(
+        self,
+        interaction
+    ):
+
 
         if interaction.user.id != self.game.user_id:
+
             return await interaction.response.send_message(
                 "This is not your game.",
                 ephemeral=True
@@ -42,6 +82,7 @@ class MinesButton(Button):
 
 
         if self.game.finished:
+
             return await interaction.response.send_message(
                 "Game already ended.",
                 ephemeral=True
@@ -51,15 +92,36 @@ class MinesButton(Button):
         await interaction.response.defer()
 
 
+        self.game.clicked.append(
+            self.index
+        )
+
+
         if self.index in self.game.mines:
 
             self.game.finished = True
 
+
             for child in self.view.children:
+
                 child.disabled = True
+
 
             self.label = "💣"
             self.style = discord.ButtonStyle.danger
+
+
+
+            embed = discord.Embed(
+                title="Mines - You Lost",
+                colour=0xE74C3C
+            )
+
+
+            embed.description = (
+                f"{GREEN_COIN} Bet: `{self.game.amount:,.2f}`\n\n"
+                "You hit a mine."
+            )
 
 
             await finish_fair_game(
@@ -70,38 +132,29 @@ class MinesButton(Button):
             )
 
 
-            embed = discord.Embed(
-                title="Mines - You Lost",
-                colour=0xE74C3C
-            )
-
-            embed.description = (
-                f"{GREEN_COIN} Bet: `{self.game.amount:.2f}`\n\n"
-                "You hit a mine."
-            )
-
-
             return await interaction.edit_original_response(
                 embed=embed,
                 view=self.view
             )
 
 
+
         self.game.safe += 1
+
 
         self.label = "💎"
         self.style = discord.ButtonStyle.success
 
 
         multiplier = round(
-            1 + (self.game.safe * 0.15),
+            1.20 + (self.game.safe * 0.20),
             2
         )
 
 
-        for child in self.view.children:
-            if child.label == "💎":
-                child.disabled = True
+        winnings = (
+            self.game.amount * multiplier
+        )
 
 
         embed = discord.Embed(
@@ -111,10 +164,12 @@ class MinesButton(Button):
 
 
         embed.description = (
-            f"{GREEN_COIN} Bet: `{self.game.amount:.2f}`\n"
+
+            f"{GREEN_COIN} Bet: `{self.game.amount:,.2f}`\n"
             f"💎 Diamonds: `{self.game.safe}`\n"
             f"Multiplier: `{multiplier}x`\n\n"
-            "Keep playing or cash out."
+
+            "Find more diamonds or cash out."
         )
 
 
@@ -125,9 +180,14 @@ class MinesButton(Button):
 
 
 
+
 class CashoutButton(Button):
 
-    def __init__(self, game):
+    def __init__(
+        self,
+        game
+    ):
+
         super().__init__(
             label="Cashout",
             style=discord.ButtonStyle.primary,
@@ -137,29 +197,38 @@ class CashoutButton(Button):
         self.game = game
 
 
-    async def callback(self, interaction):
+
+    async def callback(
+        self,
+        interaction
+    ):
+
 
         if interaction.user.id != self.game.user_id:
+
             return await interaction.response.send_message(
-                "Not your game.",
+                "This is not your game.",
                 ephemeral=True
             )
 
 
         if self.game.finished:
+
             return await interaction.response.send_message(
-                "Game ended.",
+                "Game already ended.",
                 ephemeral=True
             )
 
 
         multiplier = round(
-            1 + (self.game.safe * 0.15),
+            1.20 + (self.game.safe * 0.20),
             2
         )
 
 
-        winnings = self.game.amount * multiplier
+        winnings = (
+            self.game.amount * multiplier
+        )
 
 
         await add_balance(
@@ -175,12 +244,14 @@ class CashoutButton(Button):
             self.game.fair_id,
             f"{multiplier}x",
             multiplier,
-            winnings-self.game.amount
+            winnings - self.game.amount
         )
 
 
         for child in self.view.children:
+
             child.disabled = True
+
 
 
         embed = discord.Embed(
@@ -190,8 +261,10 @@ class CashoutButton(Button):
 
 
         embed.description = (
-            f"{GREEN_COIN} Won: `{winnings:.2f}`\n"
+
+            f"{GREEN_COIN} Won: `{winnings:,.2f}`\n"
             f"Multiplier: `{multiplier}x`"
+
         )
 
 
@@ -202,9 +275,13 @@ class CashoutButton(Button):
 
 
 
+
 class MinesView(View):
 
-    def __init__(self, game):
+    def __init__(
+        self,
+        game
+    ):
 
         super().__init__(
             timeout=300
@@ -214,6 +291,7 @@ class MinesView(View):
 
 
         for i in range(25):
+
             self.add_item(
                 MinesButton(
                     i,
@@ -223,38 +301,23 @@ class MinesView(View):
 
 
         self.add_item(
-            CashoutButton(game)
+            CashoutButton(
+                game
+            )
         )
 
-
-
-class MinesGame:
-
-    def __init__(
-        self,
-        user_id,
-        amount,
-        fair_id
-    ):
-
-        self.user_id = user_id
-        self.amount = amount
-        self.fair_id = fair_id
-
-        self.mines = random.sample(
-            range(25),
-            3
-        )
-
-        self.safe = 0
-        self.finished = False
 
 
 
 class Mines(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(
+        self,
+        bot
+    ):
+
         self.bot = bot
+
 
 
     @commands.command(
@@ -266,10 +329,12 @@ class Mines(commands.Cog):
         amount: float
     ):
 
+
         user_id = ctx.author.id
 
 
         if amount <= 0:
+
             return await ctx.reply(
                 "Invalid amount."
             )
@@ -281,9 +346,11 @@ class Mines(commands.Cog):
 
 
         if balance < amount:
+
             return await ctx.reply(
                 "Not enough balance."
             )
+
 
 
         fair = await create_fair_game(
@@ -302,12 +369,7 @@ class Mines(commands.Cog):
         game = MinesGame(
             user_id,
             amount,
-            fair["id"]
-        )
-
-
-        view = MinesView(
-            game
+            fair
         )
 
 
@@ -318,19 +380,23 @@ class Mines(commands.Cog):
 
 
         embed.description = (
-            f"{GREEN_COIN} Bet: `{amount:.2f}`\n\n"
-            "Find diamonds and cashout!"
+
+            f"{GREEN_COIN} Bet: `{amount:,.2f}`\n\n"
+            "Click diamonds and avoid mines."
+
         )
 
 
         await ctx.reply(
             embed=embed,
-            view=view
+            view=MinesView(game)
         )
 
 
 
-async def setup(bot):
+async def setup(
+    bot
+):
 
     await bot.add_cog(
         Mines(bot)
