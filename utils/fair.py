@@ -10,11 +10,15 @@ def generate_server_seed():
 
 
 
-def hash_server_seed(server_seed):
+
+def hash_server_seed(
+    server_seed
+):
 
     return hashlib.sha256(
         server_seed.encode()
     ).hexdigest()
+
 
 
 
@@ -24,21 +28,25 @@ def generate_client_seed():
 
 
 
+
 def generate_game_id():
 
     return secrets.token_hex(8)
 
 
 
+
 def generate_result(
     server_seed,
     client_seed,
-    nonce
+    nonce,
+    game
 ):
 
     message = (
-        f"{client_seed}:{nonce}"
+        f"{client_seed}:{nonce}:{game}"
     )
+
 
     result = hmac.new(
         server_seed.encode(),
@@ -46,11 +54,15 @@ def generate_result(
         hashlib.sha256
     ).hexdigest()
 
+
     return result
 
 
 
-def number_from_hash(hash_result):
+
+def number_from_hash(
+    hash_result
+):
 
     return int(
         hash_result[:8],
@@ -59,9 +71,11 @@ def number_from_hash(hash_result):
 
 
 
-# =====================
+
+# ==========================
 # COINFLIP
-# =====================
+# ==========================
+
 
 def coinflip_result(
     server_seed,
@@ -72,24 +86,31 @@ def coinflip_result(
     hash_result = generate_result(
         server_seed,
         client_seed,
-        nonce
+        nonce,
+        "coinflip"
     )
+
 
     number = number_from_hash(
         hash_result
     )
 
+
     if number % 2 == 0:
 
         return "heads"
+
 
     return "tails"
 
 
 
-# =====================
-# DICE 1-100
-# =====================
+
+
+# ==========================
+# DICE
+# ==========================
+
 
 def dice_result(
     server_seed,
@@ -97,29 +118,30 @@ def dice_result(
     nonce
 ):
 
-    data = (
-        f"{server_seed}:{client_seed}:{nonce}:dice"
+    hash_result = generate_result(
+        server_seed,
+        client_seed,
+        nonce,
+        "dice"
     )
 
 
-    hash_result = hashlib.sha256(
-        data.encode()
-    ).hexdigest()
+    number = (
+        number_from_hash(hash_result)
+        % 100
+    ) + 1
 
 
-    number = int(
-        hash_result[:8],
-        16
-    )
-
-
-    return (number % 100) + 1
+    return number
 
 
 
-# =====================
+
+
+# ==========================
 # LIMBO
-# =====================
+# ==========================
+
 
 def limbo_result(
     server_seed,
@@ -127,55 +149,105 @@ def limbo_result(
     nonce
 ):
 
-    data = (
-        f"{server_seed}:{client_seed}:{nonce}:limbo"
+    hash_result = generate_result(
+        server_seed,
+        client_seed,
+        nonce,
+        "limbo"
     )
 
 
-    hash_result = hmac.new(
-        server_seed.encode(),
-        data.encode(),
-        hashlib.sha256
-    ).hexdigest()
-
-
-    number = int(
-        hash_result[:8],
-        16
+    number = number_from_hash(
+        hash_result
     )
 
 
-    # 0 - 1 random value
-
-    roll = number / 4294967295
-
-
-
-    # House edge
-    edge = 0.96
-
-
-
-    # Casino style limbo curve
-    multiplier = edge / (roll + 0.01)
-
-
-
-    # minimum
-
-    if multiplier < 1:
-        multiplier = 1
-
-
-
-    # maximum
-
-    if multiplier > 100:
-        multiplier = 100
-
+    # 1.00x - 100.00x
+    result = (
+        1 +
+        (number % 9900) / 100
+    )
 
 
     return round(
-        multiplier,
+        result,
         2
     )
+
+
+
+
+
+# ==========================
+# MINES
+# ==========================
+
+
+def mines_result(
+    server_seed,
+    client_seed,
+    nonce,
+    total_cells=25,
+    mine_count=3
+):
+
+
+    hash_result = generate_result(
+        server_seed,
+        client_seed,
+        nonce,
+        "mines"
+    )
+
+
+    mines = []
+
+
+    cursor = 0
+
+
+
+    while len(mines) < mine_count:
+
+
+        if cursor + 8 > len(hash_result):
+
+
+            hash_result = hashlib.sha256(
+                hash_result.encode()
+            ).hexdigest()
+
+
+            cursor = 0
+
+
+
+        chunk = hash_result[
+            cursor:cursor+8
+        ]
+
+
+        number = int(
+            chunk,
+            16
+        )
+
+
+        position = (
+            number %
+            total_cells
+        )
+
+
+        if position not in mines:
+
+            mines.append(
+                position
+            )
+
+
+        cursor += 8
+
+
+
+    return mines
