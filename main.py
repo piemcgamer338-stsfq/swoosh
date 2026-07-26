@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands
 
 from config import TOKEN, PREFIX
+from database import setup_database
 
 
 intents = discord.Intents.default()
@@ -40,10 +41,7 @@ async def on_command(ctx):
 
 
 @bot.event
-async def on_command_error(
-    ctx,
-    error
-):
+async def on_command_error(ctx, error):
 
     print("\n" + "=" * 60)
     print("COMMAND ERROR")
@@ -106,6 +104,9 @@ async def load_cogs():
 
 
 async def main():
+
+    # Create database tables first
+    await setup_database()
 
     async with bot:
 
