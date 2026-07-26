@@ -8,21 +8,34 @@ BASE_IMAGE = "assets/limbo.png"
 
 def get_font(size):
 
-    fonts = [
-        "arial.ttf",
-        "DejaVuSans-Bold.ttf"
+    paths = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "DejaVuSans-Bold.ttf",
+        "arial.ttf"
     ]
 
-    for font in fonts:
+    for path in paths:
         try:
             return ImageFont.truetype(
-                font,
+                path,
                 size
             )
         except:
-            pass
+            continue
 
     return ImageFont.load_default()
+
+
+
+def center_text(draw, text, font, width):
+
+    box = draw.textbbox(
+        (0, 0),
+        text,
+        font=font
+    )
+
+    return (width - (box[2] - box[0])) // 2
 
 
 
@@ -54,23 +67,18 @@ def create_limbo_image(
 
 
 
-    # Result text
-
     result_text = (
         "YOU WON"
         if won
-        else
-        "YOU LOST"
+        else "YOU LOST"
     )
 
 
     result_color = (
         (46,204,113)
         if won
-        else
-        (231,76,60)
+        else (231,76,60)
     )
-
 
 
     multiplier_text = (
@@ -79,65 +87,63 @@ def create_limbo_image(
 
 
 
+    # Dynamic sizing based on image size
+
     multiplier_font = get_font(
-        2200
+        int(height * 0.32)
     )
 
 
     result_font = get_font(
-        1100
+        int(height * 0.12)
     )
 
 
 
-    # Center multiplier
+    # multiplier
 
-    box = draw.textbbox(
-        (0,0),
+    x = center_text(
+        draw,
         multiplier_text,
-        font=multiplier_font
-    )
-
-
-    text_width = (
-        box[2] - box[0]
+        multiplier_font,
+        width
     )
 
 
     draw.text(
         (
-            (width-text_width)//2,
-            height//2-80
+            x,
+            int(height * 0.25)
         ),
         multiplier_text,
         font=multiplier_font,
-        fill=result_color
+        fill=result_color,
+        stroke_width=3,
+        stroke_fill=(0,0,0)
     )
 
 
 
-    # Center win lose
+    # win/loss
 
-    box = draw.textbbox(
-        (0,0),
+    x = center_text(
+        draw,
         result_text,
-        font=result_font
-    )
-
-
-    text_width = (
-        box[2]-box[0]
+        result_font,
+        width
     )
 
 
     draw.text(
         (
-            (width-text_width)//2,
-            height//2+80
+            x,
+            int(height * 0.65)
         ),
         result_text,
         font=result_font,
-        fill=(255,255,255)
+        fill=(255,255,255),
+        stroke_width=3,
+        stroke_fill=(0,0,0)
     )
 
 
