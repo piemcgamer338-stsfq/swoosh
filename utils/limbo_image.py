@@ -10,7 +10,7 @@ def get_font(size):
 
     fonts = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
         "arial.ttf"
     ]
 
@@ -27,15 +27,52 @@ def get_font(size):
 
 
 
-def center_x(draw, text, font, width):
+def fit_font(
+    draw,
+    text,
+    max_width,
+    start_size
+):
+
+    size = start_size
+
+    while size > 10:
+
+        font = get_font(size)
+
+        box = draw.textbbox(
+            (0,0),
+            text,
+            font=font
+        )
+
+        width = box[2] - box[0]
+
+        if width <= max_width:
+            return font
+
+        size -= 5
+
+    return get_font(10)
+
+
+
+def center_position(
+    draw,
+    text,
+    font,
+    width
+):
 
     box = draw.textbbox(
-        (0, 0),
+        (0,0),
         text,
         font=font
     )
 
-    return (width - (box[2] - box[0])) // 2
+    text_width = box[2] - box[0]
+
+    return (width-text_width)//2
 
 
 
@@ -75,34 +112,42 @@ def create_limbo_image(
     result_text = (
         "YOU WON"
         if won
-        else "YOU LOST"
+        else
+        "YOU LOST"
     )
 
 
-    color = (
+    multiplier_color = (
         (46,204,113)
         if won
-        else (231,76,60)
+        else
+        (231,76,60)
     )
 
 
 
-    # HUGE TEXT
+    # HUGE AUTO SIZED TEXT
 
-    multiplier_font = get_font(
-        int(height * 0.65)
+    multiplier_font = fit_font(
+        draw,
+        multiplier_text,
+        width * 0.85,
+        int(height * 0.45)
     )
 
 
-    result_font = get_font(
-        int(height * 0.22)
+    result_font = fit_font(
+        draw,
+        result_text,
+        width * 0.75,
+        int(height * 0.18)
     )
 
 
 
-    # multiplier position
+    # multiplier
 
-    x = center_x(
+    x = center_position(
         draw,
         multiplier_text,
         multiplier_font,
@@ -113,12 +158,12 @@ def create_limbo_image(
     draw.text(
         (
             x,
-            int(height * 0.05)
+            height * 0.20
         ),
         multiplier_text,
         font=multiplier_font,
-        fill=color,
-        stroke_width=8,
+        fill=multiplier_color,
+        stroke_width=10,
         stroke_fill=(0,0,0)
     )
 
@@ -126,7 +171,7 @@ def create_limbo_image(
 
     # win lose
 
-    x = center_x(
+    x = center_position(
         draw,
         result_text,
         result_font,
@@ -137,31 +182,31 @@ def create_limbo_image(
     draw.text(
         (
             x,
-            int(height * 0.72)
+            height * 0.70
         ),
         result_text,
         font=result_font,
         fill=(255,255,255),
-        stroke_width=6,
+        stroke_width=8,
         stroke_fill=(0,0,0)
     )
 
 
 
-    output = (
+    filename = (
         f"limbo_{uuid.uuid4().hex}.png"
     )
 
 
-    output_path = os.path.join(
+    path = os.path.join(
         "assets",
-        output
+        filename
     )
 
 
     image.save(
-        output_path
+        path
     )
 
 
-    return output_path
+    return path
