@@ -7,3 +7,4 @@ qrcode==8.2
 aiosqlite==0.21.0
 humanize==4.12.3
 orjson==3.11.2
+requests==2.32.3
