@@ -3,8 +3,11 @@ import secrets
 import hmac
 
 
+
 def generate_server_seed():
+
     return secrets.token_hex(32)
+
 
 
 def hash_server_seed(server_seed):
@@ -14,14 +17,17 @@ def hash_server_seed(server_seed):
     ).hexdigest()
 
 
+
 def generate_client_seed():
 
     return secrets.token_hex(16)
 
 
+
 def generate_game_id():
 
     return secrets.token_hex(8)
+
 
 
 def generate_result(
@@ -43,15 +49,19 @@ def generate_result(
     return result
 
 
+
 def number_from_hash(hash_result):
 
-    number = int(
+    return int(
         hash_result[:8],
         16
     )
 
-    return number
 
+
+# =====================
+# COINFLIP
+# =====================
 
 def coinflip_result(
     server_seed,
@@ -70,12 +80,16 @@ def coinflip_result(
     )
 
     if number % 2 == 0:
+
         return "heads"
 
     return "tails"
 
-import hashlib
 
+
+# =====================
+# DICE 1-100
+# =====================
 
 def dice_result(
     server_seed,
@@ -96,24 +110,32 @@ def dice_result(
     number = int(
         hash_result[:8],
         16
-    ) % 100 + 1
+    )
 
 
-    return number
+    return (number % 100) + 1
+
+
+
+# =====================
+# LIMBO
+# =====================
 
 def limbo_result(
     server_seed,
     client_seed,
     nonce
 ):
-    import hashlib
 
     data = (
         f"{server_seed}:{client_seed}:{nonce}:limbo"
     )
 
-    hash_result = hashlib.sha256(
-        data.encode()
+
+    hash_result = hmac.new(
+        server_seed.encode(),
+        data.encode(),
+        hashlib.sha256
     ).hexdigest()
 
 
@@ -123,7 +145,36 @@ def limbo_result(
     )
 
 
-    # 1.00x - 100.00x range
-    result = 1 + (number % 9900) / 100
+    # Convert to 0-1 range
 
-    return round(result, 2)
+    roll = number / 4294967295
+
+
+
+    # Casino style formula
+    # Lower multipliers common
+    # Higher multipliers rare
+
+    house_edge = 0.96
+
+
+    multiplier = (
+        house_edge / (1 - roll)
+    )
+
+
+    if multiplier < 1:
+
+        multiplier = 1
+
+
+    if multiplier > 100:
+
+        multiplier = 100
+
+
+
+    return round(
+        multiplier,
+        2
+    )
