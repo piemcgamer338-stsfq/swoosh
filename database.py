@@ -1,111 +1,148 @@
-import os
-import asyncio
+import asyncpg
 
-import discord
-from discord.ext import commands
-
-from config import TOKEN, PREFIX
-from database import setup_database
+from config import DATABASE_URL
 
 
-intents = discord.Intents.default()
-intents.message_content = True
-intents.members = True
-intents.guilds = True
+pool = None
 
 
-bot = commands.Bot(
-    command_prefix=PREFIX,
-    intents=intents,
-    help_command=None,
-    case_insensitive=True
-)
+async def get_pool():
 
+    global pool
 
-@bot.event
-async def on_ready():
+    if pool is None:
 
-    print("=" * 50)
-    print(f"✅ Logged in as {bot.user}")
-    print(f"🆔 Bot ID: {bot.user.id}")
-    print(f"🌍 Connected Guilds: {len(bot.guilds)}")
-    print("=" * 50)
-
-
-@bot.event
-async def on_message(message):
-
-    if message.author.bot:
-        return
-
-    await bot.process_commands(message)
-
-
-@bot.event
-async def on_command(ctx):
-
-    print(
-        f"[COMMAND] {ctx.author} -> {ctx.command}"
-    )
-
-
-@bot.event
-async def on_command_error(
-    ctx,
-    error
-):
-
-    print("\n" + "=" * 60)
-    print("COMMAND ERROR")
-    print(f"User    : {ctx.author}")
-    print(f"Guild   : {ctx.guild}")
-    print(f"Message : {ctx.message.content}")
-    print(f"Error   : {repr(error)}")
-    print("=" * 60 + "\n")
-
-    try:
-        await ctx.reply(
-            f"❌ **{type(error).__name__}**\n```{error}```"
+        pool = await asyncpg.create_pool(
+            DATABASE_URL
         )
-    except Exception:
-        pass
+
+    return pool
 
 
-async def load_cogs():
+async def setup_database():
 
-    for file in os.listdir("./cogs"):
+    db = await get_pool()
 
-        if (
-            file.endswith(".py")
-            and
-            not file.startswith("_")
-        ):
+    async with db.acquire() as conn:
 
-            try:
+        await conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
 
-                await bot.load_extension(
-                    f"cogs.{file[:-3]}"
-                )
+            discord_id BIGINT PRIMARY KEY,
 
-                print(f"✅ Loaded {file}")
+            balance DOUBLE PRECISION DEFAULT 0,
 
-            except Exception as e:
+            vault DOUBLE PRECISION DEFAULT 0,
 
-                print(f"❌ Failed {file}")
-                print(repr(e))
+            wager DOUBLE PRECISION DEFAULT 0,
 
+            weekly_wager DOUBLE PRECISION DEFAULT 0,
 
-async def main():
+            rb_wager DOUBLE PRECISION DEFAULT 0,
 
-    await setup_database()
+            deposited DOUBLE PRECISION DEFAULT 0,
 
-    async with bot:
+            affiliate_by BIGINT,
 
-        await load_cogs()
+            affiliate_earnings DOUBLE PRECISION DEFAULT 0,
 
-        await bot.start(TOKEN)
+            withdraw_allowed BOOLEAN DEFAULT FALSE,
 
+            created_at TIMESTAMP DEFAULT NOW()
 
-if __name__ == "__main__":
+        );
+        """)
 
-    asyncio.run(main())
+        await conn.execute("""
+        CREATE TABLE IF NOT EXISTS withdrawals (
+
+            id SERIAL PRIMARY KEY,
+
+            discord_id BIGINT,
+
+            amount DOUBLE PRECISION,
+
+            address TEXT,
+
+            status TEXT DEFAULT 'Pending',
+
+            created_at TIMESTAMP DEFAULT NOW()
+
+        );
+        """)
+
+        await conn.execute("""
+        CREATE TABLE IF NOT EXISTS deposits (
+
+            id SERIAL PRIMARY KEY,
+
+            discord_id BIGINT,
+
+            txid TEXT,
+
+            amount DOUBLE PRECISION,
+
+            status TEXT DEFAULT 'Pending',
+
+            created_at TIMESTAMP DEFAULT NOW()
+
+        );
+        """)
+
+        await conn.execute("""
+        CREATE TABLE IF NOT EXISTS threads (
+
+            id SERIAL PRIMARY KEY,
+
+            owner_id BIGINT,
+
+            thread_id BIGINT UNIQUE,
+
+            created_at TIMESTAMP DEFAULT NOW()
+
+        );
+        """)
+
+        await conn.execute("""
+        CREATE TABLE IF NOT EXISTS house (
+
+            id INTEGER PRIMARY KEY,
+
+            balance DOUBLE PRECISION DEFAULT 80
+
+        );
+        """)
+
+        await conn.execute("""
+        INSERT INTO house(id,balance)
+
+        VALUES(1,80)
+
+        ON CONFLICT(id)
+
+        DO NOTHING;
+        """)
+
+        await conn.execute("""
+        CREATE TABLE IF NOT EXISTS game_history (
+
+            id SERIAL PRIMARY KEY,
+
+            discord_id BIGINT,
+
+            game TEXT,
+
+            bet DOUBLE PRECISION,
+
+            result TEXT,
+
+            multiplier DOUBLE PRECISION,
+
+            profit DOUBLE PRECISION,
+
+            created_at TIMESTAMP DEFAULT NOW()
+
+        );
+        """)
+
+    print("✅ Database ready")
