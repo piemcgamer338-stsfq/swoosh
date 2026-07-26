@@ -28,20 +28,49 @@ async def on_ready():
     print("-----------------------------")
 
 
+@bot.event
+async def on_message(message):
+
+    if message.author.bot:
+        return
+
+    await bot.process_commands(message)
+
+
 async def load_cogs():
+
     for file in os.listdir("./cogs"):
-        if file.endswith(".py") and not file.startswith("_"):
+
+        if (
+            file.endswith(".py")
+            and not file.startswith("_")
+        ):
+
             try:
-                await bot.load_extension(f"cogs.{file[:-3]}")
-                print(f"Loaded {file}")
+
+                await bot.load_extension(
+                    f"cogs.{file[:-3]}"
+                )
+
+                print(
+                    f"Loaded {file}"
+                )
+
             except Exception as e:
-                print(f"Failed to load {file}: {e}")
+
+                print(
+                    f"Failed to load {file}: {e}"
+                )
 
 
 async def main():
+
     async with bot:
+
         await load_cogs()
+
         await bot.start(TOKEN)
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
