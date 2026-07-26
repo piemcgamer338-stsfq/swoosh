@@ -89,12 +89,14 @@ def profile_picture(
         fill=255
     )
 
-    image.paste(
+        image.paste(
         avatar,
         (60,60),
         mask
     )
-    def create_stats_image(
+
+
+def create_stats_image(
     avatar_url,
     username,
     balance,
