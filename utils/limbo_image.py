@@ -8,16 +8,16 @@ BASE_IMAGE = "assets/limbo.png"
 
 def get_font(size):
 
-    paths = [
+    fonts = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "DejaVuSans-Bold.ttf",
         "arial.ttf"
     ]
 
-    for path in paths:
+    for font in fonts:
         try:
             return ImageFont.truetype(
-                path,
+                font,
                 size
             )
         except:
@@ -27,7 +27,7 @@ def get_font(size):
 
 
 
-def center_text(draw, text, font, width):
+def center_x(draw, text, font, width):
 
     box = draw.textbbox(
         (0, 0),
@@ -67,6 +67,11 @@ def create_limbo_image(
 
 
 
+    multiplier_text = (
+        f"{multiplier:.2f}x"
+    )
+
+
     result_text = (
         "YOU WON"
         if won
@@ -74,35 +79,30 @@ def create_limbo_image(
     )
 
 
-    result_color = (
+    color = (
         (46,204,113)
         if won
         else (231,76,60)
     )
 
 
-    multiplier_text = (
-        f"{multiplier:.2f}x"
-    )
 
-
-
-    # Dynamic sizing based on image size
+    # HUGE TEXT
 
     multiplier_font = get_font(
-        int(height * 0.32)
+        int(height * 0.65)
     )
 
 
     result_font = get_font(
-        int(height * 0.12)
+        int(height * 0.22)
     )
 
 
 
-    # multiplier
+    # multiplier position
 
-    x = center_text(
+    x = center_x(
         draw,
         multiplier_text,
         multiplier_font,
@@ -113,20 +113,20 @@ def create_limbo_image(
     draw.text(
         (
             x,
-            int(height * 0.25)
+            int(height * 0.05)
         ),
         multiplier_text,
         font=multiplier_font,
-        fill=result_color,
-        stroke_width=3,
+        fill=color,
+        stroke_width=8,
         stroke_fill=(0,0,0)
     )
 
 
 
-    # win/loss
+    # win lose
 
-    x = center_text(
+    x = center_x(
         draw,
         result_text,
         result_font,
@@ -137,12 +137,12 @@ def create_limbo_image(
     draw.text(
         (
             x,
-            int(height * 0.65)
+            int(height * 0.72)
         ),
         result_text,
         font=result_font,
         fill=(255,255,255),
-        stroke_width=3,
+        stroke_width=6,
         stroke_fill=(0,0,0)
     )
 
