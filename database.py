@@ -62,6 +62,7 @@ async def setup_database():
         )
 
 
+
         # DEPOSITS
 
         await conn.execute(
@@ -83,6 +84,7 @@ async def setup_database():
             );
             """
         )
+
 
 
         # WITHDRAWALS
@@ -108,6 +110,7 @@ async def setup_database():
         )
 
 
+
         # THREADS
 
         await conn.execute(
@@ -127,7 +130,8 @@ async def setup_database():
         )
 
 
-        # HOUSE BALANCE
+
+        # HOUSE
 
         await conn.execute(
             """
@@ -151,14 +155,14 @@ async def setup_database():
             )
 
             ON CONFLICT(id)
-
             DO NOTHING;
 
             """
         )
 
 
-        # GAME HISTORY + PROVABLY FAIR
+
+        # GAME HISTORY
 
         await conn.execute(
             """
@@ -174,9 +178,9 @@ async def setup_database():
 
                 result TEXT,
 
-                multiplier DOUBLE PRECISION,
+                multiplier DOUBLE PRECISION DEFAULT 0,
 
-                profit DOUBLE PRECISION,
+                profit DOUBLE PRECISION DEFAULT 0,
 
                 server_seed_hash TEXT,
 
@@ -189,6 +193,27 @@ async def setup_database():
                 created_at TIMESTAMP DEFAULT NOW()
 
             );
+            """
+        )
+
+
+
+        # IMPORTANT:
+        # Upgrade old databases automatically
+
+        await conn.execute(
+            """
+            ALTER TABLE game_history
+            ADD COLUMN IF NOT EXISTS server_seed_hash TEXT;
+
+            ALTER TABLE game_history
+            ADD COLUMN IF NOT EXISTS server_seed TEXT;
+
+            ALTER TABLE game_history
+            ADD COLUMN IF NOT EXISTS client_seed TEXT;
+
+            ALTER TABLE game_history
+            ADD COLUMN IF NOT EXISTS nonce INTEGER DEFAULT 0;
             """
         )
 
