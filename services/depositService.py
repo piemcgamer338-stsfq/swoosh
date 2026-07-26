@@ -1,20 +1,29 @@
-from database import get_session
-from models import User
+from config import LTC_XPUB
 
 
-async def create_deposit_address(
-    user_id
-):
+async def generate_deposit_address(user_id: int):
 
-    # XPUB integration later
-    return f"LTC_ADDRESS_{user_id}"
+    """
+    TODO:
+    Generate deterministic LTC address
+    from XPUB later.
+    """
+
+    return f"LTC_{user_id}"
 
 
-async def pending_deposit(
-    txid
-):
+async def get_confirmations(txid: str):
 
-    return {
-        "status": "Pending",
-        "confirmations": 0
-    }
+    """
+    Placeholder.
+    Replace with BlockCypher / Mempool API.
+    """
+
+    return 0
+
+
+async def check_deposit(txid: str):
+
+    confirmations = await get_confirmations(txid)
+
+    return confirmations >= 1
