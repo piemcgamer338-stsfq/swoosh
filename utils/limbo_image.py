@@ -68,10 +68,7 @@ def create_limbo_image(
     width, height = image.size
 
 
-
-    multiplier_text = (
-        f"{multiplier:.2f}x"
-    )
+    multiplier_text = f"{multiplier:.2f}x"
 
 
     result_text = (
@@ -91,20 +88,20 @@ def create_limbo_image(
 
 
 
-    # MASSIVE CASINO STYLE TEXT
+    # 10x BIGGER VERSION
 
     multiplier_font = get_font(
-        int(height * 1.8)
+        int(height * 3.0)
     )
 
 
     result_font = get_font(
-        int(height * 0.45)
+        int(height * 0.65)
     )
 
 
 
-    # BIG MULTIPLIER
+    # MULTIPLIER
 
     x = center_x(
         draw,
@@ -117,12 +114,12 @@ def create_limbo_image(
     draw.text(
         (
             x,
-            int(height * 0.18)
+            int(height * 0.10)
         ),
         multiplier_text,
         font=multiplier_font,
         fill=multiplier_color,
-        stroke_width=15,
+        stroke_width=20,
         stroke_fill=(0,0,0)
     )
 
@@ -141,20 +138,18 @@ def create_limbo_image(
     draw.text(
         (
             x,
-            int(height * 0.78)
+            int(height * 0.75)
         ),
         result_text,
         font=result_font,
         fill=(255,255,255),
-        stroke_width=10,
+        stroke_width=15,
         stroke_fill=(0,0,0)
     )
 
 
 
-    filename = (
-        f"limbo_{uuid.uuid4().hex}.png"
-    )
+    filename = f"limbo_{uuid.uuid4().hex}.png"
 
 
     output_path = os.path.join(
