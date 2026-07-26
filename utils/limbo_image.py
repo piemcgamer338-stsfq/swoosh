@@ -21,21 +21,16 @@ def get_font(size):
                 size
             )
         except:
-            pass
+            continue
 
     return ImageFont.load_default()
 
 
 
-def center_text(
-    draw,
-    text,
-    font,
-    width
-):
+def center_x(draw, text, font, width):
 
     box = draw.textbbox(
-        (0,0),
+        (0, 0),
         text,
         font=font
     )
@@ -74,7 +69,9 @@ def create_limbo_image(
 
 
 
-    multiplier_text = f"{multiplier:.2f}x"
+    multiplier_text = (
+        f"{multiplier:.2f}x"
+    )
 
 
     result_text = (
@@ -86,30 +83,30 @@ def create_limbo_image(
 
 
     multiplier_color = (
-        (46,204,113)
+        (46, 204, 113)
         if won
         else
-        (231,76,60)
+        (231, 76, 60)
     )
 
 
 
-    # EXTREME LARGE SIZE
+    # MASSIVE CASINO STYLE TEXT
 
     multiplier_font = get_font(
-        int(height * 0.85)
+        int(height * 1.8)
     )
 
 
     result_font = get_font(
-        int(height * 0.25)
+        int(height * 0.45)
     )
 
 
 
-    # MULTIPLIER
+    # BIG MULTIPLIER
 
-    x = center_text(
+    x = center_x(
         draw,
         multiplier_text,
         multiplier_font,
@@ -120,7 +117,7 @@ def create_limbo_image(
     draw.text(
         (
             x,
-            height * 0.02
+            int(height * 0.18)
         ),
         multiplier_text,
         font=multiplier_font,
@@ -133,7 +130,7 @@ def create_limbo_image(
 
     # WIN / LOSE
 
-    x = center_text(
+    x = center_x(
         draw,
         result_text,
         result_font,
@@ -144,7 +141,7 @@ def create_limbo_image(
     draw.text(
         (
             x,
-            height * 0.72
+            int(height * 0.78)
         ),
         result_text,
         font=result_font,
@@ -160,15 +157,15 @@ def create_limbo_image(
     )
 
 
-    output = os.path.join(
+    output_path = os.path.join(
         "assets",
         filename
     )
 
 
     image.save(
-        output
+        output_path
     )
 
 
-    return output
+    return output_path
