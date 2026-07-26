@@ -1,6 +1,7 @@
 from discord.ext import commands
 import discord
 import asyncio
+import os
 
 from services.economy import (
     get_balance,
@@ -14,6 +15,7 @@ from services.fairgame import (
 )
 
 from utils.fair import limbo_result
+from utils.limbo_image import create_limbo_image
 
 
 GREEN_COIN = "<:Based_GreenCoin:1530472181434155111>"
@@ -39,23 +41,20 @@ class Limbo(commands.Cog):
 
 
         if amount <= 0:
-
             return await ctx.reply(
                 "Invalid bet amount."
             )
 
 
         if target < 1.01:
-
             return await ctx.reply(
                 "Minimum multiplier is 1.01x."
             )
 
 
-        if target > 1000:
-
+        if target > 100:
             return await ctx.reply(
-                "Maximum multiplier is 1000x."
+                "Maximum multiplier is 100x."
             )
 
 
@@ -65,7 +64,6 @@ class Limbo(commands.Cog):
 
 
         if balance < amount:
-
             return await ctx.reply(
                 "You don't have enough points."
             )
@@ -105,7 +103,6 @@ class Limbo(commands.Cog):
         if won:
 
             winnings = amount * target
-
             profit = winnings - amount
 
 
@@ -119,7 +116,7 @@ class Limbo(commands.Cog):
 
             description = (
                 f"{GREEN_COIN} **Target:** `{target:.2f}x`\n"
-                f"{GREEN_COIN} **Result:** `{result:.2f}x`\n\n"
+                f"{GREEN_COIN} **Outcome:** `{result:.2f}x`\n\n"
 
                 f"Nice! You won "
                 f"{GREEN_COIN} `{winnings:,.2f}` points."
@@ -132,7 +129,6 @@ class Limbo(commands.Cog):
         else:
 
             winnings = 0
-
             profit = -amount
 
 
@@ -140,7 +136,7 @@ class Limbo(commands.Cog):
 
             description = (
                 f"{GREEN_COIN} **Target:** `{target:.2f}x`\n"
-                f"{GREEN_COIN} **Result:** `{result:.2f}x`\n\n"
+                f"{GREEN_COIN} **Outcome:** `{result:.2f}x`\n\n"
 
                 "Better luck next time."
             )
@@ -155,6 +151,20 @@ class Limbo(commands.Cog):
             f"{result:.2f}x",
             target if won else 0,
             profit
+        )
+
+
+        # CREATE RESULT IMAGE
+
+        image_path = create_limbo_image(
+            result,
+            won
+        )
+
+
+        file = discord.File(
+            image_path,
+            filename="limbo.png"
         )
 
 
@@ -189,6 +199,11 @@ class Limbo(commands.Cog):
         )
 
 
+        embed.set_image(
+            url="attachment://limbo.png"
+        )
+
+
         embed.set_footer(
             text="Swoosh Casino • Provably Fair"
         )
@@ -196,8 +211,18 @@ class Limbo(commands.Cog):
 
         await msg.edit(
             content=None,
-            embed=embed
+            embed=embed,
+            attachments=[file]
         )
+
+
+        # delete generated image
+
+        try:
+            os.remove(image_path)
+
+        except:
+            pass
 
 
 
