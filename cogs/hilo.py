@@ -299,7 +299,7 @@ class HiLo(commands.Cog):
         )
 
 
-                if balance < amount:
+        if balance < amount:
 
             return await ctx.reply(
                 "Not enough balance."
