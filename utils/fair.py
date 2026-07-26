@@ -73,3 +73,30 @@ def coinflip_result(
         return "heads"
 
     return "tails"
+
+import hashlib
+
+
+def dice_result(
+    server_seed,
+    client_seed,
+    nonce
+):
+
+    data = (
+        f"{server_seed}:{client_seed}:{nonce}:dice"
+    )
+
+
+    hash_result = hashlib.sha256(
+        data.encode()
+    ).hexdigest()
+
+
+    number = int(
+        hash_result[:8],
+        16
+    ) % 100 + 1
+
+
+    return number
