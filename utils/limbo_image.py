@@ -80,12 +80,12 @@ def create_limbo_image(
 
 
     multiplier_font = get_font(
-        220
+        2200
     )
 
 
     result_font = get_font(
-        110
+        1100
     )
 
 
