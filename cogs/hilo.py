@@ -17,7 +17,7 @@ from services.economy import (
 
 
 GREEN_COIN = "<:Based_GreenCoin:1530472181434155111>"
-DEPOSIT_EMOJI = "<:deposit:1530123456789012345>"
+DEPOSIT_EMOJI = "<:deposit:1530474879185588386>"
 
 ACTIVE_GAMES = {}
 
