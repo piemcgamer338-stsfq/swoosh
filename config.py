@@ -3,26 +3,25 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+TOKEN = os.getenv("TOKEN")
+
+PREFIX = "."
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 OWNER_ID = int(os.getenv("OWNER_ID"))
 
-PREFIX = os.getenv("PREFIX", ".")
-
-LTC_XPUB = os.getenv("LTC_XPUB")
-
-LTC_WALLET = os.getenv("LTC_WALLET")
-
-SOL_WALLET = os.getenv("SOL_WALLET")
-
-USDT_WALLET = os.getenv("USDT_WALLET")
+HOUSE_BALANCE = 16000
+# 16000 Points = $80
 
 POINT_VALUE_USD = 0.005
+POINT_VALUE_LTC = 0.0001
 
 MIN_DEPOSIT_USD = 0.10
-
 MIN_WITHDRAW_USD = 1.00
 
-HOUSE_BALANCE = 80
+LTC_CONFIRMATIONS = 1
+
+LTC_ADDRESS = "ltc1qcq2l6h5r0drx0hsg3796rk0phdtmq2fmjhh80s"
+SOL_ADDRESS = "43iwsPQnwKuGD7HsPVfxsfMTVD36f3z1qmECFxGxnoC8"
+USDT_ADDRESS = "0x57C5961B988fF93Dd02D9eD5404D4A2c2C19CfC5"
