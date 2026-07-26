@@ -23,9 +23,44 @@ bot = commands.Bot(
 
 @bot.event
 async def on_ready():
+
+    print("=" * 40)
     print(f"✅ Logged in as {bot.user}")
-    print(f"🆔 ID: {bot.user.id}")
-    print("-----------------------------")
+    print(f"🆔 Bot ID: {bot.user.id}")
+    print(f"🌍 Connected Guilds: {len(bot.guilds)}")
+    print("=" * 40)
+
+
+@bot.event
+async def on_command(ctx):
+
+    print(
+        f"[COMMAND] {ctx.author} -> {ctx.command}"
+    )
+
+
+@bot.event
+async def on_command_error(
+    ctx,
+    error
+):
+
+    print("\n" + "=" * 60)
+    print("COMMAND ERROR")
+    print(f"User: {ctx.author}")
+    print(f"Guild: {ctx.guild}")
+    print(f"Command: {ctx.message.content}")
+    print(f"Error: {repr(error)}")
+    print("=" * 60 + "\n")
+
+    try:
+
+        await ctx.reply(
+            f"❌ `{type(error).__name__}`\n```{error}```"
+        )
+
+    except Exception:
+        pass
 
 
 @bot.event
@@ -33,6 +68,10 @@ async def on_message(message):
 
     if message.author.bot:
         return
+
+    print(
+        f"[MESSAGE] {message.author}: {message.content}"
+    )
 
     await bot.process_commands(message)
 
@@ -43,7 +82,8 @@ async def load_cogs():
 
         if (
             file.endswith(".py")
-            and not file.startswith("_")
+            and
+            not file.startswith("_")
         ):
 
             try:
@@ -53,14 +93,16 @@ async def load_cogs():
                 )
 
                 print(
-                    f"Loaded {file}"
+                    f"✅ Loaded {file}"
                 )
 
             except Exception as e:
 
                 print(
-                    f"Failed to load {file}: {e}"
+                    f"❌ Failed {file}"
                 )
+
+                print(repr(e))
 
 
 async def main():
@@ -73,4 +115,5 @@ async def main():
 
 
 if __name__ == "__main__":
+
     asyncio.run(main())
