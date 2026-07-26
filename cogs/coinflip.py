@@ -15,6 +15,12 @@ from services.fairgame import (
 from utils.fair import coinflip_result
 
 
+HEADS_IMAGE = "https://cdn.discordapp.com/attachments/1526285576393855088/1530849945312038993/c32d1eab-0b47-4684-baa2-59e77b8beaf8.png?ex=6a67129c&is=6a65c11c&hm=1d880fbcc591789325ed4b22bebce5f7719024b55aa7c1dcd7312f9a4bfc493b"
+
+TAILS_IMAGE = "https://cdn.discordapp.com/attachments/1526285576393855088/1530849636108210236/1874c89b-4833-490d-9e24-2fa95d7dbf22.png?ex=6a671253&is=6a65c0d3&hm=71c6f09a4bb247fd5aafc8ad2b0bafb6416ea78c3606b7f5d49c520bb2083d1e"
+
+
+
 class Coinflip(commands.Cog):
 
     def __init__(self, bot):
@@ -38,10 +44,10 @@ class Coinflip(commands.Cog):
         choice = choice.lower()
 
 
-        if choice in ["h"]:
+        if choice in ["h", "head"]:
             choice = "heads"
 
-        elif choice in ["t"]:
+        elif choice in ["t", "tail"]:
             choice = "tails"
 
 
@@ -51,14 +57,14 @@ class Coinflip(commands.Cog):
         ]:
 
             return await ctx.reply(
-                "Choose heads or tails."
+                "Choose `heads` or `tails`."
             )
 
 
         if amount <= 0:
 
             return await ctx.reply(
-                "Invalid amount."
+                "Invalid bet amount."
             )
 
 
@@ -103,24 +109,26 @@ class Coinflip(commands.Cog):
                 amount * 2
             )
 
-            text = (
-                f"You won `{amount * 2:,.2f}` points\n\n"
-                f"Result: **{result}**"
+
+            description = (
+                f"Result: **{result.upper()}**\n\n"
+                f"You won **{amount * 2:,.2f} points**"
             )
 
-            color = 0x2ECC71
+            colour = 0x2ECC71
 
 
         else:
 
             profit = -amount
 
-            text = (
-                f"You lost `{amount:,.2f}` points\n\n"
-                f"Result: **{result}**"
+
+            description = (
+                f"Result: **{result.upper()}**\n\n"
+                f"You lost **{amount:,.2f} points**"
             )
 
-            color = 0xE74C3C
+            colour = 0xE74C3C
 
 
 
@@ -133,24 +141,37 @@ class Coinflip(commands.Cog):
 
 
         embed = discord.Embed(
-            title="Coinflip Result",
-            description=text,
-            colour=color
+            title="Coinflip",
+            description=description,
+            colour=colour
         )
 
 
         embed.add_field(
             name="Game ID",
             value=f"`#{fair['id']}`",
-            inline=False
+            inline=True
         )
 
 
         embed.add_field(
             name="Verification",
             value=f"`.verify {fair['id']}`",
-            inline=False
+            inline=True
         )
+
+
+        if result == "heads":
+
+            embed.set_image(
+                url=HEADS_IMAGE
+            )
+
+        else:
+
+            embed.set_image(
+                url=TAILS_IMAGE
+            )
 
 
         embed.set_footer(
@@ -161,6 +182,7 @@ class Coinflip(commands.Cog):
         await ctx.reply(
             embed=embed
         )
+
 
 
 async def setup(bot):
