@@ -2,12 +2,16 @@ import discord
 
 from discord.ext import commands
 
-from database import get_db
+from database import get_pool
+
 
 
 class Verify(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(
+        self,
+        bot
+    ):
 
         self.bot = bot
 
@@ -19,20 +23,25 @@ class Verify(commands.Cog):
     async def verify(
         self,
         ctx,
-        game_id: str
+        game_id: int
     ):
 
-        db = await get_db()
+
+        pool = await get_pool()
 
 
-        game = await db.fetch_one(
-            """
-            SELECT *
-            FROM game_history
-            WHERE id = $1
-            """,
-            game_id
-        )
+        async with pool.acquire() as conn:
+
+
+            game = await conn.fetchrow(
+                """
+                SELECT *
+                FROM game_history
+                WHERE id = $1
+                """,
+                game_id
+            )
+
 
 
         if not game:
@@ -40,9 +49,6 @@ class Verify(commands.Cog):
             return await ctx.reply(
                 "Game not found."
             )
-
-
-        game = dict(game)
 
 
         embed = discord.Embed(
@@ -53,7 +59,7 @@ class Verify(commands.Cog):
 
         embed.add_field(
             name="Game",
-            value=f"`{game['game_type']}`",
+            value=f"`{game['game']}`",
             inline=True
         )
 
@@ -61,6 +67,13 @@ class Verify(commands.Cog):
         embed.add_field(
             name="Game ID",
             value=f"`{game['id']}`",
+            inline=True
+        )
+
+
+        embed.add_field(
+            name="Bet",
+            value=f"`{game['bet']:,.2f}`",
             inline=True
         )
 
@@ -100,6 +113,20 @@ class Verify(commands.Cog):
         )
 
 
+        embed.add_field(
+            name="Multiplier",
+            value=f"`{game['multiplier']}x`",
+            inline=True
+        )
+
+
+        embed.add_field(
+            name="Profit",
+            value=f"`{game['profit']:,.2f}`",
+            inline=True
+        )
+
+
         embed.set_footer(
             text="Swoosh Casino • Provably Fair"
         )
@@ -111,7 +138,9 @@ class Verify(commands.Cog):
 
 
 
-async def setup(bot):
+async def setup(
+    bot
+):
 
     await bot.add_cog(
         Verify(bot)
