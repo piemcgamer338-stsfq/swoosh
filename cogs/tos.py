@@ -1,55 +1,57 @@
 from discord.ext import commands
-import discord
+
+from utils.embed import createEmbed
 
 
-class Terms(commands.Cog):
+class Tos(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
+
     @commands.command(
-        name="tos"
+        name="tos",
+        aliases=["terms"]
     )
-    async def tos(self, ctx):
+    async def tos(
+        self,
+        ctx
+    ):
 
-        embed = discord.Embed(
-            title="📜 Swoosh Casino • Terms of Service",
-            colour=0x2ECC71
+        embed = createEmbed(
+
+            "📜 Swoosh Casino • Terms of Service",
+
+            (
+                "**By using Swoosh Casino you agree to the following:**\n\n"
+
+                "• This bot uses **virtual Points**.\n"
+                "• `1 Point = $0.005` value inside the bot.\n"
+                "• Deposits and withdrawals are processed manually.\n"
+                "• Attempting to exploit bugs may result in a permanent blacklist.\n"
+                "• Alternate accounts used for farming rewards are prohibited.\n"
+                "• Staff decisions are final.\n"
+                "• Swoosh Casino may update these rules at any time.\n\n"
+
+                "**Fairness**\n"
+                "• Coinflip uses **Heads** or **Tails** only.\n"
+                "• Provably Fair is available using `.pcf`.\n"
+                "• Every game outcome is generated independently.\n\n"
+
+                "**Withdrawals**\n"
+                "• Minimum withdrawal: **$1.00**\n"
+                "• You must wager **2x** your total deposits before withdrawing.\n"
+                "• Withdrawals are reviewed by the owner before being marked as sent."
+            )
+
         )
 
-        embed.description = (
-            "**1. General**\n"
-            "By using **Swoosh Casino**, you agree to these Terms of Service.\n\n"
-
-            "**2. Responsibility**\n"
-            "• Gamble responsibly.\n"
-            "• All bets are final.\n"
-            "• Staff decisions are final.\n\n"
-
-            "**3. Deposits & Withdrawals**\n"
-            "**3.1 Minimum Deposit:** **£0.10**\n"
-            "**3.2 Minimum Withdrawal:** **£1.00**\n"
-            "**3.3 Wager Requirement:** **2×** your deposited amount.\n"
-            "**3.4 Cryptocurrency:** Litecoin (LTC) is recommended.\n"
-            "**3.5 Confirmations:** Deposits require **1 confirmation**.\n"
-            "**3.6 Transactions are irreversible.** Always double-check your address.\n\n"
-
-            "**4. Abuse**\n"
-            "Using exploits, alternate accounts, automation or abusing bugs may result in your balance being reset and a permanent blacklist.\n\n"
-
-            "**5. Provably Fair**\n"
-            "Every game uses a Provably Fair system to ensure random and unbiased results.\n\n"
-
-            "**6. Availability**\n"
-            "The bot may be restarted or taken offline for updates without notice."
+        await ctx.reply(
+            embed=embed
         )
-
-        embed.set_footer(
-            text="Swoosh Casino • Play Responsibly"
-        )
-
-        await ctx.reply(embed=embed)
 
 
 async def setup(bot):
-    await bot.add_cog(Terms(bot))thread.py insi
+    await bot.add_cog(
+        Tos(bot)
+    )
