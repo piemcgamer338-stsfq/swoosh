@@ -100,3 +100,30 @@ def dice_result(
 
 
     return number
+
+def limbo_result(
+    server_seed,
+    client_seed,
+    nonce
+):
+    import hashlib
+
+    data = (
+        f"{server_seed}:{client_seed}:{nonce}:limbo"
+    )
+
+    hash_result = hashlib.sha256(
+        data.encode()
+    ).hexdigest()
+
+
+    number = int(
+        hash_result[:8],
+        16
+    )
+
+
+    # 1.00x - 100.00x range
+    result = 1 + (number % 9900) / 100
+
+    return round(result, 2)
