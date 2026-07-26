@@ -7,33 +7,30 @@ import os
 BASE_IMAGE = "assets/stats.png"
 
 
-def get_font(size):
-
+def font(size):
     fonts = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
         "arial.ttf"
     ]
 
-    for font in fonts:
+    for f in fonts:
         try:
-            return ImageFont.truetype(font, size)
+            return ImageFont.truetype(f, size)
         except:
             continue
 
     return ImageFont.load_default()
 
 
-def draw_text(draw, x, y, text, size, colour=(255,255,255)):
-
-    font = get_font(size)
+def text(draw, x, y, value, size, colour=(255,255,255)):
 
     draw.text(
         (x, y),
-        str(text),
-        font=font,
+        str(value),
+        font=font(size),
         fill=colour,
-        stroke_width=4,
+        stroke_width=5,
         stroke_fill=(0,0,0)
     )
 
@@ -51,51 +48,49 @@ def create_stats_image(
 ):
 
     image = Image.open(BASE_IMAGE).convert("RGBA")
-
     draw = ImageDraw.Draw(image)
 
-    width, height = image.size
 
-
-    response = requests.get(avatar_url)
+    # ---------------- Avatar ----------------
 
     avatar = Image.open(
-        BytesIO(response.content)
+        BytesIO(
+            requests.get(avatar_url).content
+        )
     ).convert("RGBA")
 
-    avatar = avatar.resize((180,180))
+    avatar = avatar.resize((260,260))
 
-    mask = Image.new("L",(180,180),0)
-
-    ImageDraw.Draw(mask).ellipse(
-        (0,0,180,180),
-        fill=255
-    )
+    mask = Image.new("L",(260,260),0)
+    ImageDraw.Draw(mask).ellipse((0,0,260,260),fill=255)
 
     image.paste(
         avatar,
-        (60,60),
+        (80,70),
         mask
     )
 
 
-    # HUGE username
-    draw_text(
+    # ---------------- Username ----------------
+
+    text(
         draw,
-        280,
-        55,
+        390,
+        70,
         username,
-        72
+        95
     )
 
-    # VERY BIG stats
-    draw_text(draw,280,180,f"Balance: {balance:,.2f}",52)
-    draw_text(draw,280,245,f"Vault: {vault:,.2f}",52)
-    draw_text(draw,280,310,f"Wagered: {wager:,.2f}",52)
-    draw_text(draw,280,375,f"Deposited: {deposited:,.2f}",52)
-    draw_text(draw,280,440,f"Withdrawn: {withdrawn:,.2f}",52)
-    draw_text(draw,280,505,f"Affiliate: {affiliate:,.2f}",52)
-    draw_text(draw,280,570,f"Joined: {join_date}",48)
+
+    # ---------------- Stats ----------------
+
+    text(draw,390,220,f"Balance : {balance:,.2f}",65)
+    text(draw,390,305,f"Vault : {vault:,.2f}",65)
+    text(draw,390,390,f"Wagered : {wager:,.2f}",65)
+    text(draw,390,475,f"Deposited : {deposited:,.2f}",65)
+    text(draw,390,560,f"Withdrawn : {withdrawn:,.2f}",65)
+    text(draw,390,645,f"Affiliate : {affiliate:,.2f}",65)
+    text(draw,390,730,f"Joined : {join_date}",60)
 
 
     filename=f"stats_{uuid.uuid4().hex}.png"
