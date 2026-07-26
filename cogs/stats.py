@@ -49,7 +49,7 @@ class Stats(commands.Cog):
             vault=row["vault"],
             wager=row["wager"],
             deposited=row["deposited"],
-            withdrawn=row["withdrawn"],
+            withdrawn=0,
             affiliate=row["affiliate_earnings"],
             join_date=row["created_at"].strftime(
                 "%d %b %Y"
