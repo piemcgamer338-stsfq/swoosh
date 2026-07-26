@@ -6,84 +6,173 @@ from config import DATABASE_URL
 pool = None
 
 
-async def connect_database():
+async def get_pool():
+
     global pool
 
-    pool = await asyncpg.create_pool(
-        DATABASE_URL,
-        min_size=1,
-        max_size=10
-    )
+    if pool is None:
 
-    async with pool.acquire() as conn:
+        pool = await asyncpg.create_pool(
+            DATABASE_URL
+        )
 
-        await conn.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            discord_id BIGINT PRIMARY KEY,
-
-            balance DOUBLE PRECISION DEFAULT 0,
-            vault DOUBLE PRECISION DEFAULT 0,
-
-            deposited DOUBLE PRECISION DEFAULT 0,
-            withdrawn DOUBLE PRECISION DEFAULT 0,
-
-            wager DOUBLE PRECISION DEFAULT 0,
-            weekly_wager DOUBLE PRECISION DEFAULT 0,
-            rakeback_wager DOUBLE PRECISION DEFAULT 0,
-
-            won DOUBLE PRECISION DEFAULT 0,
-            lost DOUBLE PRECISION DEFAULT 0,
-
-            affiliate_by BIGINT,
-            affiliate_earned DOUBLE PRECISION DEFAULT 0,
-
-            withdraw_allowed BOOLEAN DEFAULT FALSE,
-
-            rank_claimed INTEGER DEFAULT 0,
-
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-        """)
-
-        await conn.execute("""
-        CREATE TABLE IF NOT EXISTS threads (
-            owner_id BIGINT PRIMARY KEY,
-            thread_id BIGINT
-        );
-        """)
-
-        await conn.execute("""
-        CREATE TABLE IF NOT EXISTS deposits (
-            id SERIAL PRIMARY KEY,
-            discord_id BIGINT,
-            txid TEXT,
-            amount DOUBLE PRECISION,
-            confirmations INTEGER DEFAULT 0,
-            completed BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-        """)
-
-        await conn.execute("""
-        CREATE TABLE IF NOT EXISTS withdrawals (
-            id SERIAL PRIMARY KEY,
-            discord_id BIGINT,
-            amount DOUBLE PRECISION,
-            address TEXT,
-            status TEXT DEFAULT 'Pending',
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-        """)
-
-        await conn.execute("""
-        CREATE TABLE IF NOT EXISTS settings (
-            guild_id BIGINT PRIMARY KEY,
-            admin_role BIGINT
-        );
-        """)
-
-    print("✅ PostgreSQL Connected")
-
-
-async def get_pool():
     return pool
+
+
+
+async def setup_database():
+
+    db = await get_pool()
+
+    async with db.acquire() as conn:
+
+
+        # USERS
+
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+
+                discord_id BIGINT PRIMARY KEY,
+
+                balance DOUBLE PRECISION DEFAULT 0,
+
+                wager DOUBLE PRECISION DEFAULT 0,
+
+                weekly_wager DOUBLE PRECISION DEFAULT 0,
+
+                rb_wager DOUBLE PRECISION DEFAULT 0,
+
+                deposited DOUBLE PRECISION DEFAULT 0,
+
+                affiliate_by BIGINT,
+
+                affiliate_earnings DOUBLE PRECISION DEFAULT 0,
+
+                withdraw_allowed BOOLEAN DEFAULT FALSE,
+
+                created_at TIMESTAMP DEFAULT NOW()
+
+            );
+            """
+        )
+
+
+        # WITHDRAWALS
+
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS withdrawals (
+
+                id SERIAL PRIMARY KEY,
+
+                discord_id BIGINT,
+
+                amount DOUBLE PRECISION,
+
+                address TEXT,
+
+                status TEXT DEFAULT 'Pending',
+
+                created_at TIMESTAMP DEFAULT NOW()
+
+            );
+            """
+        )
+
+
+        # DEPOSITS
+
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS deposits (
+
+                id SERIAL PRIMARY KEY,
+
+                discord_id BIGINT,
+
+                txid TEXT,
+
+                amount DOUBLE PRECISION,
+
+                status TEXT DEFAULT 'Pending',
+
+                created_at TIMESTAMP DEFAULT NOW()
+
+            );
+            """
+        )
+
+
+        # THREADS
+
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS threads (
+
+                id SERIAL PRIMARY KEY,
+
+                owner_id BIGINT,
+
+                thread_id BIGINT UNIQUE,
+
+                created_at TIMESTAMP DEFAULT NOW()
+
+            );
+            """
+        )
+
+
+        # HOUSE
+
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS house (
+
+                id INTEGER PRIMARY KEY,
+
+                balance DOUBLE PRECISION DEFAULT 80
+
+            );
+
+
+            INSERT INTO house(id,balance)
+
+            VALUES(1,80)
+
+            ON CONFLICT(id)
+
+            DO NOTHING;
+
+            """
+        )
+
+
+        # GAME HISTORY
+
+        await conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS game_history (
+
+                id SERIAL PRIMARY KEY,
+
+                discord_id BIGINT,
+
+                game TEXT,
+
+                bet DOUBLE PRECISION,
+
+                result TEXT,
+
+                multiplier DOUBLE PRECISION,
+
+                profit DOUBLE PRECISION,
+
+                created_at TIMESTAMP DEFAULT NOW()
+
+            );
+            """
+        )
+
+
+        print("✅ Database ready")
