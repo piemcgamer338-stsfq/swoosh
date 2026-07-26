@@ -145,31 +145,32 @@ def limbo_result(
     )
 
 
-    # Convert to 0-1 range
+    # 0 - 1 random value
 
     roll = number / 4294967295
 
 
 
-    # Casino style formula
-    # Lower multipliers common
-    # Higher multipliers rare
-
-    house_edge = 0.96
+    # House edge
+    edge = 0.96
 
 
-    multiplier = (
-        house_edge / (1 - roll)
-    )
 
+    # Casino style limbo curve
+    multiplier = edge / (roll + 0.01)
+
+
+
+    # minimum
 
     if multiplier < 1:
-
         multiplier = 1
 
 
-    if multiplier > 100:
 
+    # maximum
+
+    if multiplier > 100:
         multiplier = 100
 
 
