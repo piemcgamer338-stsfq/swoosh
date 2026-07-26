@@ -19,8 +19,11 @@ from utils.mines import generate_mines
 
 GREEN_COIN = "<:Based_GreenCoin:1530472181434155111>"
 
-# Change this if your deposit emoji ID is different
+# Change this to your deposit emoji if different
 CASHOUT_EMOJI = "💰"
+
+
+active_games = {}
 
 
 
@@ -51,7 +54,8 @@ class MinesGame:
 
 
 
-class MinesButton(Button):
+
+class MinesTile(Button):
 
     def __init__(
         self,
@@ -60,7 +64,8 @@ class MinesButton(Button):
     ):
 
         super().__init__(
-            label="⬜",
+            label="",
+            emoji="⬜",
             style=discord.ButtonStyle.secondary,
             row=index // 5
         )
@@ -87,7 +92,7 @@ class MinesButton(Button):
         if self.game.finished:
 
             return await interaction.response.send_message(
-                "Game ended.",
+                "Game already ended.",
                 ephemeral=True
             )
 
@@ -96,25 +101,21 @@ class MinesButton(Button):
 
 
 
+        # BOMB
+
         if self.index in self.game.mines:
+
 
             self.game.finished = True
 
 
-            for child in self.view.children:
-                child.disabled = True
-
-
-            self.label = "💣"
+            self.emoji = "💣"
             self.style = discord.ButtonStyle.danger
 
 
-            await finish_fair_game(
-                self.game.fair_id,
-                "mine",
-                0,
-                -self.game.amount
-            )
+            for button in self.view.children:
+
+                button.disabled = True
 
 
             embed = discord.Embed(
@@ -129,6 +130,14 @@ class MinesButton(Button):
             )
 
 
+            await finish_fair_game(
+                self.game.fair_id,
+                "mine",
+                0,
+                -self.game.amount
+            )
+
+
             return await interaction.edit_original_response(
                 embed=embed,
                 view=self.view
@@ -136,15 +145,20 @@ class MinesButton(Button):
 
 
 
-        self.safe += 1
+        # DIAMOND
 
 
-        self.label = "💎"
+        self.game.safe += 1
+
+
+        self.emoji = "💎"
         self.style = discord.ButtonStyle.success
+        self.disabled = True
+
 
 
         multiplier = round(
-            1.15 + (self.safe * 0.18),
+            1.15 + (self.game.safe * 0.18),
             2
         )
 
@@ -157,7 +171,7 @@ class MinesButton(Button):
 
         embed.description = (
             f"{GREEN_COIN} Bet: `{self.game.amount:,.2f}`\n"
-            f"💎 Diamonds: `{self.safe}`\n"
+            f"💎 Diamonds: `{self.game.safe}`\n"
             f"Multiplier: `{multiplier}x`\n\n"
             f"React {CASHOUT_EMOJI} to cashout."
         )
@@ -188,7 +202,7 @@ class MinesView(View):
         for i in range(25):
 
             self.add_item(
-                MinesButton(
+                MinesTile(
                     i,
                     game
                 )
@@ -205,8 +219,6 @@ class Mines(commands.Cog):
     ):
 
         self.bot = bot
-
-        self.games = {}
 
 
 
@@ -230,6 +242,7 @@ class Mines(commands.Cog):
             )
 
 
+
         balance = await get_balance(
             user_id
         )
@@ -240,6 +253,7 @@ class Mines(commands.Cog):
             return await ctx.reply(
                 "Not enough balance."
             )
+
 
 
         fair = await create_fair_game(
@@ -262,7 +276,8 @@ class Mines(commands.Cog):
         )
 
 
-        self.games[user_id] = game
+        active_games[user_id] = game
+
 
 
         embed = discord.Embed(
@@ -273,7 +288,8 @@ class Mines(commands.Cog):
 
         embed.description = (
             f"{GREEN_COIN} Bet: `{amount:,.2f}`\n\n"
-            f"React {CASHOUT_EMOJI} anytime to cashout."
+            f"Click tiles to find diamonds.\n"
+            f"React {CASHOUT_EMOJI} to cashout."
         )
 
 
@@ -287,8 +303,6 @@ class Mines(commands.Cog):
             CASHOUT_EMOJI
         )
 
-
-        game.message_id = msg.id
 
 
 
@@ -308,15 +322,16 @@ class Mines(commands.Cog):
             return
 
 
-        if user.id not in self.games:
+        if user.id not in active_games:
             return
 
 
-        game = self.games[user.id]
+        game = active_games[user.id]
 
 
         if game.finished:
             return
+
 
 
         multiplier = round(
@@ -339,12 +354,19 @@ class Mines(commands.Cog):
         game.finished = True
 
 
+
         await finish_fair_game(
             game.fair_id,
             f"{multiplier}x",
             multiplier,
             winnings - game.amount
         )
+
+
+
+        for item in reaction.message.components:
+            pass
+
 
 
         embed = discord.Embed(
@@ -359,9 +381,6 @@ class Mines(commands.Cog):
         )
 
 
-        channel = reaction.message.channel
-
-
         await reaction.message.edit(
             embed=embed,
             view=None
@@ -369,7 +388,10 @@ class Mines(commands.Cog):
 
 
 
-async def setup(bot):
+
+async def setup(
+    bot
+):
 
     await bot.add_cog(
         Mines(bot)
