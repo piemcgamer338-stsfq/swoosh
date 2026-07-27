@@ -53,6 +53,8 @@ class Stats(commands.Cog):
             "%d %b %Y"
         )
 
+        join_date = member.joined_at.strftime("%d %b %Y") if member.joined_at else "Unknown"
+
         image_path = create_stats_image(
             avatar,
             username,
