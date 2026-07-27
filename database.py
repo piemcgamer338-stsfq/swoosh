@@ -198,11 +198,33 @@ async def setup_database():
 
 
 
-        # IMPORTANT:
+        
+                # IMPORTANT:
         # Upgrade old databases automatically
 
         await conn.execute(
             """
+            ALTER TABLE users
+            ADD COLUMN IF NOT EXISTS withdrawn DOUBLE PRECISION DEFAULT 0;
+
+            ALTER TABLE users
+            ADD COLUMN IF NOT EXISTS deposited DOUBLE PRECISION DEFAULT 0;
+
+            ALTER TABLE users
+            ADD COLUMN IF NOT EXISTS affiliate_earnings DOUBLE PRECISION DEFAULT 0;
+
+            ALTER TABLE users
+            ADD COLUMN IF NOT EXISTS affiliate_by BIGINT;
+
+            ALTER TABLE users
+            ADD COLUMN IF NOT EXISTS withdraw_allowed BOOLEAN DEFAULT FALSE;
+
+            ALTER TABLE users
+            ADD COLUMN IF NOT EXISTS weekly_wager DOUBLE PRECISION DEFAULT 0;
+
+            ALTER TABLE users
+            ADD COLUMN IF NOT EXISTS rb_wager DOUBLE PRECISION DEFAULT 0;
+
             ALTER TABLE game_history
             ADD COLUMN IF NOT EXISTS server_seed_hash TEXT;
 
@@ -216,6 +238,5 @@ async def setup_database():
             ADD COLUMN IF NOT EXISTS nonce INTEGER DEFAULT 0;
             """
         )
-
 
         print("✅ Database ready")
