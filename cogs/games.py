@@ -20,18 +20,17 @@ class Games(commands.Cog):
 
                 "> <:blackjack:1530475467633852456> `.blackjack` `.bj`\n"
                 "> <a:coinflip:1530475419877507234> `.cf`\n"
-                "> <:dice6:1530475335118753842> `.bjdice`\n"
+                "> <:dice6:1530475335118753842> `.bjdice[soon]`\n"
                 "> <a:Rocket:1530573055645057267> `.limbo`\n"
                 "> <:bomb:1530475533161463948> `.mines`\n"
-                "> <:Roulette:1530475754297753701> `.roulette`\n\n"
+                "> <:Roulette:1530475754297753701> `.roulette[soon]`\n\n"
 
                 "**SPECIAL GAMES**\n\n"
 
-                "> 📈 `.market`\n"
-                "> 🪙 `.pcf`\n"
-                "> 🃏 `.war`\n"
-                "> 🎲 `.ward`\n"
-                "> 🏎️ `.rush`\n\n"
+                "> 📈 `.market[soon]`\n"
+                "> 🪙 `.pcf[soon]`\n"
+                "> 🃏 `.war[soon]`\n"
+                "> 🎲 `.ward[soon]`\n"
 
                 "**Every game is Provably Fair.**"
             ),
