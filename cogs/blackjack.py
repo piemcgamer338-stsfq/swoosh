@@ -124,7 +124,7 @@ class BlackjackView(discord.ui.View):
         style=discord.ButtonStyle.success,
         row=0
     )
-    async def hit(
+        async def hit(
         self,
         interaction: discord.Interaction,
         button: discord.ui.Button
