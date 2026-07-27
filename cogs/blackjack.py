@@ -118,7 +118,8 @@ class BlackjackView(discord.ui.View):
             os.remove(image)
         except:
             pass
-              @discord.ui.button(
+             
+            @discord.ui.button(
         label="Hit",
         style=discord.ButtonStyle.success,
         row=0
