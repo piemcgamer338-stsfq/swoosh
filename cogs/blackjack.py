@@ -158,21 +158,6 @@ class BlackjackView(discord.ui.View):
 
             self.clear_items()
 
-            await self.update_message(
-                interaction,
-                hide_dealer=False,
-                title="💥 Bust!",
-                colour=0xE74C3C
-            )
-
-            return
-
-        await self.update_message(
-            interaction
-        )
-
-            return
-
         await self.update_message(
             interaction
         )
