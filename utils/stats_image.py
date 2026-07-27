@@ -99,7 +99,8 @@ def create_stats_image(
 
     draw_box(draw, 40, 415, 605, 480)
     draw_box(draw, 675, 415, 1240, 480)
-        draw_text(
+       
+    draw_text(
         draw,
         65,
         252,
