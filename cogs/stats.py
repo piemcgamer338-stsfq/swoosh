@@ -8,7 +8,8 @@ GREEN_COIN = "<:Based_GreenCoin:1530472181434155111>"
 DEPOSITED = "<:E_purse:1530474784939311215>" 
 WITHDRAW = "<:deposit:1530474879185588386>" 
 DEPOSIT = " <:purse1:1530474754845179945> "
-
+AFF "<a:coinflip:1530475419877507234>" 
+WAGARED "<:casino_chips:1530572520506392746>"
 
 class Stats(commands.Cog):
 
@@ -79,9 +80,9 @@ class Stats(commands.Cog):
             name="Activity",
             value=(
                 f"**Wagered**\n"
-                f"{GREEN_COIN} `{wager:,.2f}`\n\n"
+                f"{WAGARED} `{wager:,.2f}`\n\n"
                 f"**Affiliate Earned**\n"
-                f"{GREEN_COIN} `{affiliate:,.2f}`"
+                f"{AFF} `{affiliate:,.2f}`"
             ),
             inline=True
         )
