@@ -25,9 +25,9 @@ class Withdraw(commands.Cog):
                 "Usage:\n```fix\n.withdraw <points> <ltc address>\n```"
             )
 
-        if amount < 20:
+        if amount < 200:
             return await ctx.reply(
-                "❌ Minimum withdrawal is **20 Points (£1.00)**."
+                "❌ Minimum withdrawal is **200 Points (£1.00)**."
             )
 
         pool = await get_pool()
