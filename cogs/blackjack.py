@@ -108,7 +108,7 @@ class BlackjackView(discord.ui.View):
             inline=False
         )
 
-              await interaction.response.edit_message(
+        await interaction.response.edit_message(
             embed=embed,
             attachments=[file],
             view=self
