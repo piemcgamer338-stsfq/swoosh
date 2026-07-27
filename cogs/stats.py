@@ -11,6 +11,7 @@ DEPOSIT = " <:purse1:1530474754845179945> "
 AFF "<a:coinflip:1530475419877507234>" 
 WAGARED "<:casino_chips:1530572520506392746>"
 
+
 class Stats(commands.Cog):
 
     def __init__(self, bot):
