@@ -6,7 +6,8 @@ import os
 from services.economy import (
     get_balance,
     remove_balance,
-    add_balance
+    add_balance,
+    add_wager
 )
 
 from services.fairgame import (
@@ -77,6 +78,11 @@ class Limbo(commands.Cog):
 
 
         await remove_balance(
+            user_id,
+            amount
+        )
+
+        await add_wager(
             user_id,
             amount
         )
