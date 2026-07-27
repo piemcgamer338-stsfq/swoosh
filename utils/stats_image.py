@@ -153,7 +153,7 @@ def create_stats_image(
         draw,
         95,
         592,
-        f"Joined : {joined}",
+        f"join_date : {join_date}",
         30,
     )
 
