@@ -4,7 +4,10 @@ from discord.ext import commands
 from database import get_pool
 
 
-GREEN_COIN = "<:GOLDEN_HEAD:1463050216574816309>"
+GREEN_COIN = "<:Based_GreenCoin:1530472181434155111>"
+DEPOSITED = "<:E_purse:1530474784939311215>" 
+WITHDRAW = "<:deposit:1530474879185588386>" 
+DEPOSIT = " <:purse1:1530474754845179945> "
 
 
 class Stats(commands.Cog):
@@ -67,7 +70,7 @@ class Stats(commands.Cog):
                 f"**Balance**\n"
                 f"{GREEN_COIN} `{balance:,.2f}`\n\n"
                 f"**Vault**\n"
-                f"{GREEN_COIN} `{vault:,.2f}`"
+                f"{DEPOSITED} `{vault:,.2f}`"
             ),
             inline=True
         )
@@ -87,9 +90,9 @@ class Stats(commands.Cog):
             name="Transactions",
             value=(
                 f"**Deposited**\n"
-                f"{GREEN_COIN} `{deposited:,.2f}`\n\n"
+                f"{DEPOSIT} `{deposited:,.2f}`\n\n"
                 f"**Withdrawn**\n"
-                f"{GREEN_COIN} `{withdrawn:,.2f}`"
+                f"{WITHDRAW} `{withdrawn:,.2f}`"
             ),
             inline=False
         )
