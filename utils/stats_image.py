@@ -11,7 +11,7 @@ def get_font(size):
     fonts = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf",
-        "arial.ttf"
+        "arial.ttf",
     ]
 
     for f in fonts:
@@ -23,24 +23,22 @@ def get_font(size):
     return ImageFont.load_default()
 
 
-def draw_text(draw, x, y, text, size, colour=(255,255,255)):
+def rounded_box(draw, x1, y1, x2, y2):
+    draw.rounded_rectangle(
+        (x1, y1, x2, y2),
+        radius=18,
+        fill=(25, 35, 55, 230),
+        outline=(70, 110, 220),
+        width=2,
+    )
+
+
+def write(draw, x, y, text, size, colour=(255, 255, 255)):
     draw.text(
         (x, y),
         str(text),
         font=get_font(size),
         fill=colour,
-        stroke_width=3,
-        stroke_fill=(0,0,0)
-    )
-
-
-def box(draw, x1, y1, x2, y2):
-    draw.rounded_rectangle(
-        (x1, y1, x2, y2),
-        radius=18,
-        fill=(25,35,55,220),
-        outline=(80,120,255),
-        width=2
     )
 
 
@@ -53,121 +51,117 @@ def create_stats_image(
     deposited,
     withdrawn,
     affiliate,
-    join_date
+    joined,
 ):
-    # ---------------- Avatar ----------------
 
-    response = requests.get(avatar_url)
+    image = Image.open(BASE_IMAGE).convert("RGBA")
+    draw = ImageDraw.Draw(image)
 
+    # Avatar
     avatar = Image.open(
-        BytesIO(response.content)
+        BytesIO(requests.get(avatar_url).content)
     ).convert("RGBA")
 
-    avatar = avatar.resize((220,220))
+    avatar = avatar.resize((200, 200))
 
-    mask = Image.new("L", (220,220), 0)
+    mask = Image.new("L", (200, 200), 0)
 
     ImageDraw.Draw(mask).ellipse(
-        (0,0,220,220),
-        fill=255
+        (0, 0, 200, 200),
+        fill=255,
     )
 
     image.paste(
         avatar,
-        (65,45),
-        mask
+        (55, 45),
+        mask,
     )
 
-    # ---------------- Username ----------------
+    # Username
 
-    draw_text(
+    write(
         draw,
-        310,
-        95,
+        290,
+        90,
         username,
-        50
+        46,
     )
 
-    # ---------------- Boxes ----------------
+    # Boxes
 
-    box(draw,60,265,610,345)
-    box(draw,670,265,1220,345)
+    rounded_box(draw, 50, 260, 610, 340)
+    rounded_box(draw, 670, 260, 1230, 340)
 
-    box(draw,60,365,610,445)
-    box(draw,670,365,1220,445)
+    rounded_box(draw, 50, 360, 610, 440)
+    rounded_box(draw, 670, 360, 1230, 440)
 
-    box(draw,60,465,610,545)
-    box(draw,670,465,1220,545)
+    rounded_box(draw, 50, 460, 610, 540)
+    rounded_box(draw, 670, 460, 1230, 540)
 
-    box(draw,60,565,1220,645)
+    rounded_box(draw, 50, 560, 1230, 640)
+        # ---------------- Text ----------------
 
-    # ---------------- Text ----------------
-
-    draw_text(
+    write(
         draw,
         95,
         292,
         f"Balance : £{balance:,.2f}",
-        34
+        34,
     )
 
-    draw_text(
+    write(
         draw,
         705,
         292,
         f"Vault : £{vault:,.2f}",
-        34
+        34,
     )
 
-    draw_text(
+    write(
         draw,
         95,
         392,
         f"Wagered : £{wager:,.2f}",
-        34
+        34,
     )
 
-    draw_text(
+    write(
         draw,
         705,
         392,
         f"Deposited : £{deposited:,.2f}",
-        34
+        34,
     )
 
-    draw_text(
+    write(
         draw,
         95,
         492,
         f"Withdrawn : £{withdrawn:,.2f}",
-        34
+        34,
     )
 
-    draw_text(
+    write(
         draw,
         705,
         492,
         f"Affiliate : £{affiliate:,.2f}",
-        34
+        34,
     )
 
-    draw_text(
+    write(
         draw,
         95,
         592,
-        f"Joined : {join_date}",
-        32
+        f"Joined : {joined}",
+        30,
     )
-    
-    image = Image.open(BASE_IMAGE).convert("RGBA")
-    draw = ImageDraw.Draw(image)
-
 
     filename = f"stats_{uuid.uuid4().hex}.png"
 
     output = os.path.join(
         "assets",
-        filename
+        filename,
     )
 
     image.save(output)
