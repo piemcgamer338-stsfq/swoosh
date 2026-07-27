@@ -243,20 +243,18 @@ class BlackjackView(discord.ui.View):
                 -self.bet
             )
 
-            title = "❌ You Lose"
-            colour = 0xE74C3C
-
-        await self.update_message(
+                   await self.update_message(
             interaction,
             hide_dealer=False,
             title=title,
             colour=colour
         )
-      class Blackjack(commands.Cog):
+
+
+class Blackjack(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-
 
     @commands.command(
         aliases=["bj"]
