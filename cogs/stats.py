@@ -11,7 +11,6 @@ class Stats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
     @commands.command(
         aliases=["profile", "p"]
     )
@@ -34,17 +33,29 @@ class Stats(commands.Cog):
             member.id
         )
 
-
         if row is None:
-
             return await ctx.reply(
                 "User not registered."
             )
 
+        avatar = member.display_avatar.url
+
+        username = member.name
+
+        balance = row["balance"]
+        vault = row["vault"]
+        wager = row["wager"]
+        deposited = row["deposited"]
+        withdrawn = row["withdrawn"]
+        affiliate = row["affiliate_earnings"]
+
+        join_date = member.created_at.strftime(
+            "%d %b %Y"
+        )
 
         image_path = create_stats_image(
             avatar,
-            ctx.author.name,
+            username,
             balance,
             vault,
             wager,
@@ -52,33 +63,24 @@ class Stats(commands.Cog):
             withdrawn,
             affiliate,
             join_date
-        )(
-                "%d %b %Y"
-            )
         )
-
 
         file = discord.File(
             image_path,
             filename="stats.png"
         )
 
-
         await ctx.reply(
             file=file
         )
 
-
         try:
-            os.remove(
-                image_path
-            )
+            os.remove(image_path)
         except:
             pass
 
 
 async def setup(bot):
-
     await bot.add_cog(
         Stats(bot)
     )
