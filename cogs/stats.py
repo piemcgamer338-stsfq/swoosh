@@ -1,9 +1,10 @@
 import discord
 from discord.ext import commands
-import os
 
 from database import get_pool
-from utils.stats_image import create_stats_image
+
+
+GREEN_COIN = "<:GOLDEN_HEAD:1463050216574816309>"
 
 
 class Stats(commands.Cog):
@@ -38,30 +39,79 @@ class Stats(commands.Cog):
                 "User not registered."
             )
 
-        image_path = create_stats_image(
-            member.display_avatar.url,
-            member.display_name,
-            row["balance"],
-            row["vault"],
-            row["wager"],
-            row["deposited"],
-            row["withdrawn"],
-            row["affiliate_earnings"]
+        balance = row["balance"]
+        vault = row["vault"]
+        wager = row["wager"]
+        deposited = row["deposited"]
+        withdrawn = row["withdrawn"]
+        affiliate = row["affiliate_earnings"]
+
+        embed = discord.Embed(
+            title=f"{member.display_name}'s Statistics",
+            colour=0x2ECC71
         )
 
-        file = discord.File(
-            image_path,
-            filename="stats.png"
+        embed.set_thumbnail(
+            url=member.display_avatar.url
+        )
+
+        embed.description = (
+            "```ansi\n"
+            "Profile Information\n"
+            "```"
+        )
+
+        embed.add_field(
+            name="Wallet",
+            value=(
+                f"**Balance**\n"
+                f"{GREEN_COIN} `{balance:,.2f}`\n\n"
+                f"**Vault**\n"
+                f"{GREEN_COIN} `{vault:,.2f}`"
+            ),
+            inline=True
+        )
+
+        embed.add_field(
+            name="Activity",
+            value=(
+                f"**Wagered**\n"
+                f"{GREEN_COIN} `{wager:,.2f}`\n\n"
+                f"**Affiliate Earned**\n"
+                f"{GREEN_COIN} `{affiliate:,.2f}`"
+            ),
+            inline=True
+        )
+
+        embed.add_field(
+            name="Transactions",
+            value=(
+                f"**Deposited**\n"
+                f"{GREEN_COIN} `{deposited:,.2f}`\n\n"
+                f"**Withdrawn**\n"
+                f"{GREEN_COIN} `{withdrawn:,.2f}`"
+            ),
+            inline=False
+        )
+
+        embed.add_field(
+            name="Account",
+            value=(
+                f"**Discord ID**\n"
+                f"`{member.id}`\n\n"
+                f"**Created**\n"
+                f"`{member.created_at.strftime('%d %b %Y')}`"
+            ),
+            inline=False
+        )
+
+        embed.set_footer(
+            text="Swoosh Casino • Statistics"
         )
 
         await ctx.reply(
-            file=file
+            embed=embed
         )
-
-        try:
-            os.remove(image_path)
-        except Exception:
-            pass
 
 
 async def setup(bot):
