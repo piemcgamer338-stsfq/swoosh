@@ -5,7 +5,8 @@ import os
 from services.economy import (
     get_balance,
     remove_balance,
-    add_balance
+    add_balance,
+    add_wager
 )
 
 from services.fairgame import (
@@ -301,6 +302,11 @@ class Blackjack(commands.Cog):
 
 
         await remove_balance(
+            ctx.author.id,
+            amount
+        )
+
+        await add_wager(
             ctx.author.id,
             amount
         )
