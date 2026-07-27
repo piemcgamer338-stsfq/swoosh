@@ -108,7 +108,7 @@ class BlackjackView(discord.ui.View):
             inline=False
         )
 
-        await interaction.response.edit_message(
+              await interaction.response.edit_message(
             embed=embed,
             attachments=[file],
             view=self
@@ -116,15 +116,17 @@ class BlackjackView(discord.ui.View):
 
         try:
             os.remove(image)
+
         except:
             pass
-             
-            @discord.ui.button(
+
+
+    @discord.ui.button(
         label="Hit",
         style=discord.ButtonStyle.success,
         row=0
     )
-        async def hit(
+    async def hit(
         self,
         interaction: discord.Interaction,
         button: discord.ui.Button
@@ -162,6 +164,12 @@ class BlackjackView(discord.ui.View):
                 title="💥 Bust!",
                 colour=0xE74C3C
             )
+
+            return
+
+        await self.update_message(
+            interaction
+        )
 
             return
 
