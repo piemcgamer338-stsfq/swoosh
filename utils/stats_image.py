@@ -58,91 +58,90 @@ def create_stats_image(
 
     avatar = Image.open(
         BytesIO(
-            requests.get(
-                avatar_url
-            ).content
+            requests.get(avatar_url).content
         )
     ).convert("RGBA")
 
-avatar = avatar.resize((110,110))
+    avatar = avatar.resize((110, 110))
 
-mask = Image.new("L",(110,110),0)
+    mask = Image.new("L", (110, 110), 0)
 
-ImageDraw.Draw(mask).ellipse(
-    (0,0,110,110),
-    fill=255
-)
+    ImageDraw.Draw(mask).ellipse(
+        (0, 0, 110, 110),
+        fill=255
+    )
 
-image.paste(
-    avatar,
-    (55,55),
-    mask
-)
+    image.paste(
+        avatar,
+        (55, 55),
+        mask
+    )
 
-draw_text(
-    draw,
-    190,
-    68,
-    username,
-    28
-)
+    draw_text(
+        draw,
+        190,
+        68,
+        username,
+        28
+    )
 
-draw_box(draw,55,225,605,285)
-draw_box(draw,675,225,1225,285)
+    draw_box(draw, 55, 225, 605, 285)
+    draw_box(draw, 675, 225, 1225, 285)
 
-draw_box(draw,55,315,605,375)
-draw_box(draw,675,315,1225,375)
+    draw_box(draw, 55, 315, 605, 375)
+    draw_box(draw, 675, 315, 1225, 375)
 
-draw_box(draw,55,405,605,465)
-draw_box(draw,675,405,1225,465)
+    draw_box(draw, 55, 405, 605, 465)
+    draw_box(draw, 675, 405, 1225, 465)
 
-draw_text(
-    draw,
-    78,
-    244,
-    f"Balance : £{balance:,.2f}",
-    18
-)
+    draw_text(
+        draw,
+        78,
+        244,
+        f"Balance : £{balance:,.2f}",
+        18
+    )
 
-draw_text(
-    draw,
-    698,
-    244,
-    f"Vault : £{vault:,.2f}",
-    18
-)
+    draw_text(
+        draw,
+        698,
+        244,
+        f"Vault : £{vault:,.2f}",
+        18
+    )
 
-draw_text(
-    draw,
-    78,
-    334,
-    f"Wagered : £{wager:,.2f}",
-    18
-)
+    draw_text(
+        draw,
+        78,
+        334,
+        f"Wagered : £{wager:,.2f}",
+        18
+    )
 
-draw_text(
-    draw,
-    698,
-    334,
-    f"Deposited : £{deposited:,.2f}",
-    18
-)
+    draw_text(
+        draw,
+        698,
+        334,
+        f"Deposited : £{deposited:,.2f}",
+        18
+    )
 
-draw_text(
-    draw,
-    78,
-    424,
-    f"Withdrawn : £{withdrawn:,.2f}",
-    18
-)
+    draw_text(
+        draw,
+        78,
+        424,
+        f"Withdrawn : £{withdrawn:,.2f}",
+        18
+    )
 
-draw_text(
-    draw,
-    698,
-    424,
-    f"Affiliate : £{affiliate:,.2f}",
-    18
-)
+    draw_text(
+        draw,
+        698,
+        424,
+        f"Affiliate : £{affiliate:,.2f}",
+        18
+    )
+
     filename = f"stats_{uuid.uuid4().hex}.png"
 
     output = os.path.join(
@@ -150,8 +149,6 @@ draw_text(
         filename
     )
 
-    image.save(
-        output
-    )
+    image.save(output)
 
     return output
