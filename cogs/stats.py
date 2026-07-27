@@ -40,7 +40,7 @@ class Stats(commands.Cog):
 
         avatar = member.display_avatar.url
 
-        username = member.name
+        username = member.display_name
 
         balance = row["balance"]
         vault = row["vault"]
@@ -49,11 +49,11 @@ class Stats(commands.Cog):
         withdrawn = row["withdrawn"]
         affiliate = row["affiliate_earnings"]
 
-        join_date = member.created_at.strftime(
-            "%d %b %Y"
+        join_date = (
+            member.joined_at.strftime("%d %b %Y")
+            if member.joined_at
+            else "Unknown"
         )
-
-        join_date = member.joined_at.strftime("%d %b %Y") if member.joined_at else "Unknown"
 
         image_path = create_stats_image(
             avatar,
@@ -78,7 +78,7 @@ class Stats(commands.Cog):
 
         try:
             os.remove(image_path)
-        except:
+        except Exception:
             pass
 
 
