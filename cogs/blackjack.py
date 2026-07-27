@@ -243,7 +243,7 @@ class BlackjackView(discord.ui.View):
                 -self.bet
             )
 
-                   await self.update_message(
+        await self.update_message(
             interaction,
             hide_dealer=False,
             title=title,
