@@ -151,4 +151,4 @@ def create_stats_image(
 
     image.save(output)
 
-    return output
+    return outpu
