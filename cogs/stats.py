@@ -38,33 +38,15 @@ class Stats(commands.Cog):
                 "User not registered."
             )
 
-        avatar = member.display_avatar.url
-
-        username = member.display_name
-
-        balance = row["balance"]
-        vault = row["vault"]
-        wager = row["wager"]
-        deposited = row["deposited"]
-        withdrawn = row["withdrawn"]
-        affiliate = row["affiliate_earnings"]
-
-        join_date = (
-            member.joined_at.strftime("%d %b %Y")
-            if member.joined_at
-            else "Unknown"
-        )
-
         image_path = create_stats_image(
-            avatar,
-            username,
-            balance,
-            vault,
-            wager,
-            deposited,
-            withdrawn,
-            affiliate,
-            join_date
+            member.display_avatar.url,
+            member.display_name,
+            row["balance"],
+            row["vault"],
+            row["wager"],
+            row["deposited"],
+            row["withdrawn"],
+            row["affiliate_earnings"]
         )
 
         file = discord.File(
