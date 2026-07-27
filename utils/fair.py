@@ -156,23 +156,35 @@ def limbo_result(
         "limbo"
     )
 
+    number = number_from_hash(hash_result)
 
-    number = number_from_hash(
-        hash_result
-    )
+    roll = number / 0xFFFFFFFF
 
+    if roll < 0.40:
+        result = 1.01 + (roll / 0.40) * 0.49
 
-    # 1.00x - 100.00x
-    result = (
-        1 +
-        (number % 9900) / 100
-    )
+    elif roll < 0.70:
+        result = 1.50 + ((roll - 0.40) / 0.30) * 0.50
 
+    elif roll < 0.88:
+        result = 2.00 + ((roll - 0.70) / 0.18) * 1.00
 
-    return round(
-        result,
-        2
-    )
+    elif roll < 0.96:
+        result = 3.00 + ((roll - 0.88) / 0.08) * 2.00
+
+    elif roll < 0.992:
+        result = 5.00 + ((roll - 0.96) / 0.032) * 5.00
+
+    elif roll < 0.998:
+        result = 10.00 + ((roll - 0.992) / 0.006) * 15.00
+
+    elif roll < 0.9998:
+        result = 25.00 + ((roll - 0.998) / 0.0018) * 25.00
+
+    else:
+        result = 50.00 + ((roll - 0.9998) / 0.0002) * 50.00
+
+    return round(result, 2)
 
 
 
