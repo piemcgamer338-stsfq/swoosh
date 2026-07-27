@@ -55,10 +55,6 @@ def create_stats_image(
     affiliate,
     join_date
 ):
-
-    image = Image.open(BASE_IMAGE).convert("RGBA")
-    draw = ImageDraw.Draw(image)
-
     # ---------------- Avatar ----------------
 
     response = requests.get(avatar_url)
@@ -67,18 +63,18 @@ def create_stats_image(
         BytesIO(response.content)
     ).convert("RGBA")
 
-    avatar = avatar.resize((180,180))
+    avatar = avatar.resize((220,220))
 
-    mask = Image.new("L",(180,180),0)
+    mask = Image.new("L", (220,220), 0)
 
     ImageDraw.Draw(mask).ellipse(
-        (0,0,180,180),
+        (0,0,220,220),
         fill=255
     )
 
     image.paste(
         avatar,
-        (60,60),
+        (65,45),
         mask
     )
 
@@ -86,37 +82,86 @@ def create_stats_image(
 
     draw_text(
         draw,
-        280,
-        75,
+        310,
+        95,
         username,
-        58
+        50
     )
 
     # ---------------- Boxes ----------------
 
-    box(draw,60,290,610,360)
-    box(draw,670,290,1220,360)
+    box(draw,60,265,610,345)
+    box(draw,670,265,1220,345)
 
-    box(draw,60,385,610,455)
-    box(draw,670,385,1220,455)
+    box(draw,60,365,610,445)
+    box(draw,670,365,1220,445)
 
-    box(draw,60,480,610,550)
-    box(draw,670,480,1220,550)
+    box(draw,60,465,610,545)
+    box(draw,670,465,1220,545)
 
-    box(draw,60,575,1220,650)
+    box(draw,60,565,1220,645)
 
     # ---------------- Text ----------------
 
-    draw_text(draw,90,305,f"Balance : £{balance:,.2f}",36)
-    draw_text(draw,700,305,f"Vault : £{vault:,.2f}",36)
+    draw_text(
+        draw,
+        95,
+        292,
+        f"Balance : £{balance:,.2f}",
+        34
+    )
 
-    draw_text(draw,90,400,f"Wagered : £{wager:,.2f}",36)
-    draw_text(draw,700,400,f"Deposited : £{deposited:,.2f}",36)
+    draw_text(
+        draw,
+        705,
+        292,
+        f"Vault : £{vault:,.2f}",
+        34
+    )
 
-    draw_text(draw,90,495,f"Withdrawn : £{withdrawn:,.2f}",36)
-    draw_text(draw,700,495,f"Affiliate : £{affiliate:,.2f}",36)
+    draw_text(
+        draw,
+        95,
+        392,
+        f"Wagered : £{wager:,.2f}",
+        34
+    )
 
-    draw_text(draw,90,595,f"Joined : {join_date}",34)
+    draw_text(
+        draw,
+        705,
+        392,
+        f"Deposited : £{deposited:,.2f}",
+        34
+    )
+
+    draw_text(
+        draw,
+        95,
+        492,
+        f"Withdrawn : £{withdrawn:,.2f}",
+        34
+    )
+
+    draw_text(
+        draw,
+        705,
+        492,
+        f"Affiliate : £{affiliate:,.2f}",
+        34
+    )
+
+    draw_text(
+        draw,
+        95,
+        592,
+        f"Joined : {join_date}",
+        32
+    )
+    
+    image = Image.open(BASE_IMAGE).convert("RGBA")
+    draw = ImageDraw.Draw(image)
+
 
     filename = f"stats_{uuid.uuid4().hex}.png"
 
