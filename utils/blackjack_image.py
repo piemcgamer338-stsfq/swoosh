@@ -9,11 +9,16 @@ CARD_FOLDER = "assets/cards"
 BACKGROUND = "assets/blackjack_table.png"
 
 
-CARD_WIDTH = 180
-CARD_HEIGHT = 260
+CARD_WIDTH = 90
+CARD_HEIGHT = 130
 
-PLAYER_Y = 430
-DEALER_Y = 80
+DEALER_X = 85
+DEALER_Y = 25
+DEALER_SPACING = 42
+
+PLAYER_X = 85
+PLAYER_Y = 180
+PLAYER_SPACING = 42
 
 
 def load_card(card):
@@ -67,13 +72,11 @@ def create_blackjack_image(
         BACKGROUND
     ).convert("RGBA")
 
-    spacing = 70
-
     # ---------- Dealer ----------
 
-    x = 160
+    x = DEALER_X
 
-    for i,card in enumerate(dealer_hand):
+    for i, card in enumerate(dealer_hand):
 
         if i == 1 and hide_dealer:
 
@@ -96,11 +99,11 @@ def create_blackjack_image(
 
         )
 
-        x += spacing
+        x += DEALER_SPACING
 
     # ---------- Player ----------
 
-    x = 160
+    x = PLAYER_X
 
     for card in player_hand:
 
@@ -119,7 +122,7 @@ def create_blackjack_image(
 
         )
 
-        x += spacing
+        x += PLAYER_SPACING
 
     filename = f"bj_{uuid.uuid4().hex}.png"
 
