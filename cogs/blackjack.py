@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import asyncio
 import os
 
 from services.economy import (
@@ -35,7 +34,6 @@ class BlackjackView(discord.ui.View):
 
     def __init__(
         self,
-        cog,
         ctx,
         fair,
         deck,
@@ -43,29 +41,25 @@ class BlackjackView(discord.ui.View):
         dealer_hand,
         bet
     ):
+        super().__init__(
+            timeout=120
+        )
 
-        super().__init__(timeout=120)
-
-        self.cog = cog
         self.ctx = ctx
         self.fair = fair
-
         self.deck = deck
-
         self.player_hand = player_hand
         self.dealer_hand = dealer_hand
-
         self.bet = bet
-
         self.finished = False
 
 
-    async def update_message(
+    async def send_result(
         self,
         interaction,
-        hide_dealer=True,
-        title="🃏 Blackjack",
-        colour=0x2ECC71
+        title,
+        colour,
+        hide_dealer=False
     ):
 
         image = create_blackjack_image(
@@ -79,34 +73,24 @@ class BlackjackView(discord.ui.View):
             filename="blackjack.png"
         )
 
+
         embed = discord.Embed(
             title=title,
             colour=colour
         )
 
+
         embed.description = (
-            f"{GREEN_COIN} **Bet:** "
-            f"`£{self.bet:,.2f}`\n\n"
-
-            f"**Your Hand:** "
-            f"`{hand_value(self.player_hand)}`\n"
-
-            f"**Dealer:** "
-            f"`{'?' if hide_dealer else hand_value(self.dealer_hand)}`"
+            f"{GREEN_COIN} **Bet:** `{self.bet:,.2f}`\n\n"
+            f"**Player:** `{hand_value(self.player_hand)}`\n"
+            f"**Dealer:** `{hand_value(self.dealer_hand) if not hide_dealer else '?'}`"
         )
+
 
         embed.set_image(
             url="attachment://blackjack.png"
         )
 
-        embed.add_field(
-            name="Provably Fair",
-            value=(
-                f"Game ID: `{self.fair['id']}`\n"
-                f"Verify: `.verify {self.fair['id']}`"
-            ),
-            inline=False
-        )
 
         await interaction.response.edit_message(
             embed=embed,
@@ -114,17 +98,16 @@ class BlackjackView(discord.ui.View):
             view=self
         )
 
+
         try:
             os.remove(image)
-
         except:
             pass
 
 
     @discord.ui.button(
         label="Hit",
-        style=discord.ButtonStyle.success,
-        row=0
+        style=discord.ButtonStyle.success
     )
     async def hit(
         self,
@@ -134,16 +117,19 @@ class BlackjackView(discord.ui.View):
 
         if interaction.user != self.ctx.author:
             return await interaction.response.send_message(
-                "This isn't your game.",
+                "This is not your game.",
                 ephemeral=True
             )
+
 
         if self.finished:
             return
 
+
         self.player_hand.append(
             draw_card(self.deck)
         )
+
 
         if hand_value(self.player_hand) > 21:
 
@@ -158,15 +144,23 @@ class BlackjackView(discord.ui.View):
 
             self.clear_items()
 
-        await self.update_message(
-            interaction
-        )
+            return await self.send_result(
+                interaction,
+                "💥 Bust!",
+                0xE74C3C
+            )
 
+
+        await self.send_result(
+            interaction,
+            "🃏 Blackjack",
+            0x2ECC71,
+            True
+        )
 
     @discord.ui.button(
         label="Stand",
-        style=discord.ButtonStyle.primary,
-        row=0
+        style=discord.ButtonStyle.primary
     )
     async def stand(
         self,
@@ -176,46 +170,51 @@ class BlackjackView(discord.ui.View):
 
         if interaction.user != self.ctx.author:
             return await interaction.response.send_message(
-                "This isn't your game.",
+                "This is not your game.",
                 ephemeral=True
             )
+
 
         if self.finished:
             return
 
+
         self.finished = True
+
 
         dealer_play(
             self.deck,
             self.dealer_hand
         )
 
+
         result = compare(
             self.player_hand,
             self.dealer_hand
         )
 
-        self.clear_items()
 
         if result == "win":
 
             winnings = self.bet * 2
-            profit = self.bet
 
             await add_balance(
                 self.ctx.author.id,
                 winnings
             )
 
+
             await finish_fair_game(
                 self.fair["id"],
                 "Win",
                 winnings,
-                profit
+                self.bet
             )
 
-            title = "🎉 You Win!"
+
+            title = "🎉 Blackjack - You Win"
             colour = 0x2ECC71
+
 
         elif result == "push":
 
@@ -224,6 +223,7 @@ class BlackjackView(discord.ui.View):
                 self.bet
             )
 
+
             await finish_fair_game(
                 self.fair["id"],
                 "Push",
@@ -231,8 +231,10 @@ class BlackjackView(discord.ui.View):
                 0
             )
 
-            title = "🤝 Push"
+
+            title = "🤝 Blackjack - Push"
             colour = 0xF1C40F
+
 
         else:
 
@@ -243,20 +245,29 @@ class BlackjackView(discord.ui.View):
                 -self.bet
             )
 
-        await self.update_message(
-            interaction,
-            hide_dealer=False,
-            title=title,
-            colour=colour
-        )
 
+            title = "❌ Blackjack - You Lose"
+            colour = 0xE74C3C
+
+
+        self.clear_items()
+
+
+        await self.send_result(
+            interaction,
+            title,
+            colour,
+            False
+        )
 
 class Blackjack(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
+
     @commands.command(
+        name="blackjack",
         aliases=["bj"]
     )
     async def blackjack(
@@ -270,14 +281,17 @@ class Blackjack(commands.Cog):
                 "Invalid bet amount."
             )
 
+
         balance = await get_balance(
             ctx.author.id
         )
 
+
         if balance < amount:
             return await ctx.reply(
-                "You don't have enough points."
+                "You don't have enough balance."
             )
+
 
         fair = await create_fair_game(
             ctx.author.id,
@@ -285,86 +299,94 @@ class Blackjack(commands.Cog):
             amount
         )
 
+
         await remove_balance(
             ctx.author.id,
             amount
         )
 
+
         deck = create_deck()
+
 
         player_hand = [
             draw_card(deck),
             draw_card(deck)
         ]
 
+
         dealer_hand = [
             draw_card(deck),
             draw_card(deck)
         ]
 
-        # Natural Blackjack
+
         if is_blackjack(player_hand):
 
             winnings = amount * 2.5
-            profit = winnings - amount
+
 
             await add_balance(
                 ctx.author.id,
                 winnings
             )
 
+
             await finish_fair_game(
                 fair["id"],
                 "Blackjack",
                 winnings,
-                profit
+                winnings - amount
             )
+
 
             image = create_blackjack_image(
                 player_hand,
                 dealer_hand,
-                hide_dealer=False
+                False
             )
+
 
             file = discord.File(
                 image,
                 filename="blackjack.png"
             )
 
+
             embed = discord.Embed(
-                title="🃏 BLACKJACK!",
+                title="🃏 Natural Blackjack!",
                 colour=0x2ECC71
             )
 
+
             embed.description = (
-                f"{GREEN_COIN} **Bet:** `£{amount:,.2f}`\n"
-                f"{GREEN_COIN} **Won:** `£{winnings:,.2f}`"
+                f"{GREEN_COIN} Bet: `{amount:,.2f}`\n"
+                f"{GREEN_COIN} Won: `{winnings:,.2f}`"
             )
+
 
             embed.set_image(
                 url="attachment://blackjack.png"
             )
 
-            embed.add_field(
-                name="Provably Fair",
-                value=f"Game ID: `{fair['id']}`",
-                inline=False
-            )
 
             await ctx.reply(
                 embed=embed,
                 file=file
             )
 
+
             try:
                 os.remove(image)
             except:
                 pass
 
+
             return
 
+
+
         view = BlackjackView(
-            self,
             ctx,
             fair,
             deck,
@@ -373,40 +395,37 @@ class Blackjack(commands.Cog):
             amount
         )
 
+
         image = create_blackjack_image(
             player_hand,
             dealer_hand,
-            hide_dealer=True
+            True
         )
+
 
         file = discord.File(
             image,
             filename="blackjack.png"
         )
 
+
         embed = discord.Embed(
             title="🃏 Blackjack",
             colour=0x2ECC71
         )
 
+
         embed.description = (
-            f"{GREEN_COIN} **Bet:** `£{amount:,.2f}`\n\n"
-            f"**Your Hand:** `{hand_value(player_hand)}`\n"
-            f"**Dealer:** `?`"
+            f"{GREEN_COIN} Bet: `{amount:,.2f}`\n\n"
+            f"Player: `{hand_value(player_hand)}`\n"
+            f"Dealer: `?`"
         )
+
 
         embed.set_image(
             url="attachment://blackjack.png"
         )
 
-        embed.add_field(
-            name="Provably Fair",
-            value=(
-                f"Game ID: `{fair['id']}`\n"
-                f"Verify: `.verify {fair['id']}`"
-            ),
-            inline=False
-        )
 
         await ctx.reply(
             embed=embed,
@@ -414,13 +433,16 @@ class Blackjack(commands.Cog):
             view=view
         )
 
+
         try:
             os.remove(image)
         except:
             pass
 
 
+
 async def setup(bot):
+
     await bot.add_cog(
         Blackjack(bot)
     )
