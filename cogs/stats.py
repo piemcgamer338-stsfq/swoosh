@@ -43,15 +43,16 @@ class Stats(commands.Cog):
 
 
         image_path = create_stats_image(
-            avatar_url=member.display_avatar.url,
-            username=member.name,
-            balance=row["balance"],
-            vault=row["vault"],
-            wager=row["wager"],
-            deposited=row["deposited"],
-            withdrawn=0,
-            affiliate=row["affiliate_earnings"],
-            join_date=row["created_at"].strftime(
+            avatar,
+            ctx.author.name,
+            balance,
+            vault,
+            wager,
+            deposited,
+            withdrawn,
+            affiliate,
+            join_date
+        )(
                 "%d %b %Y"
             )
         )
