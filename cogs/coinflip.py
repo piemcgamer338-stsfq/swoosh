@@ -4,7 +4,8 @@ import discord
 from services.economy import (
     get_balance,
     remove_balance,
-    add_balance
+    add_balance,
+    add_wager
 )
 
 from services.fairgame import (
@@ -15,9 +16,9 @@ from services.fairgame import (
 from utils.fair import coinflip_result
 
 
-HEADS_IMAGE = "https://cdn.discordapp.com/attachments/1526285576393855088/1530849945312038993/c32d1eab-0b47-4684-baa2-59e77b8beaf8.png?ex=6a67129c&is=6a65c11c&hm=1d880fbcc591789325ed4b22bebce5f7719024b55aa7c1dcd7312f9a4bfc493b"
+HEADS_IMAGE = "https://cdn.discordapp.com/attachments/1526285576393855088/1530849945312038993/c32d1eab-0b47-4684-baa2-59e77b8beaf8.png?ex=6a67129c&is=6a65c11c&hm=1d880fbcc591789325ed4b22bebce5f771[...]"
 
-TAILS_IMAGE = "https://cdn.discordapp.com/attachments/1526285576393855088/1530849636108210236/1874c89b-4833-490d-9e24-2fa95d7dbf22.png?ex=6a671253&is=6a65c0d3&hm=71c6f09a4bb247fd5aafc8ad2b0bafb6416ea78c3606b7f5d49c520bb2083d1e"
+TAILS_IMAGE = "https://cdn.discordapp.com/attachments/1526285576393855088/1530849636108210236/1874c89b-4833-490d-9e24-2fa95d7dbf22.png?ex=6a671253&is=6a65c0d3&hm=71c6f09a4bb247fd5aafc8ad2b0bafb641[...]"
 
 
 
@@ -95,6 +96,11 @@ class Coinflip(commands.Cog):
 
 
         await remove_balance(
+            user_id,
+            amount
+        )
+
+        await add_wager(
             user_id,
             amount
         )
