@@ -117,3 +117,44 @@ class LeaderboardView(discord.ui.View):
             embed=embed,
             view=self
         )
+
+class Leaderboard(commands.Cog):
+
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(
+        aliases=[
+            "lb",
+            "top"
+        ]
+    )
+    async def leaderboard(
+        self,
+        ctx
+    ):
+
+        embed = discord.Embed(
+            title="🏆 Swoosh Casino Leaderboards",
+            description=(
+                "Select which leaderboard "
+                "you want to view."
+            ),
+            colour=0x2ECC71
+        )
+
+        embed.set_footer(
+            text="Swoosh Casino"
+        )
+
+        await ctx.reply(
+            embed=embed,
+            view=LeaderboardView()
+        )
+
+
+async def setup(bot):
+
+    await bot.add_cog(
+        Leaderboard(bot)
+    )
