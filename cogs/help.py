@@ -23,38 +23,67 @@ class Help(commands.Cog):
             "ℹ️ Help Command • Main Menu",
 
             (
-                "Welcome to **Swoosh Casino**, the best Discord Casino Bot.\n\n"
+                "Welcome to **Swoosh Casino**.\n\n"
 
-                "💡 New here? Read `.guide`\n"
-                "🎮 View all games using `.games`\n\n"
+                "New here?\n"
+                "`.guide` - Learn how to use the bot\n"
+                "`.games` - View all available games\n\n"
 
-                "**UTILITY**                          **GAMES**\n"
-                "> `.balance` `.bal` `.b`        > `.blackjack` `.bj`\n"
-                "> `.stats` `.stat`             > `.cf`\n"
-                "> `.daily`                     > `.bjdice`\n"
-                "> `.weekly`                    > `.limbo`\n"
-                "> `.rb` `.rakeback`           > `.mines`\n"
-                "> `.deposit` `.depo`          > `.roulette`\n"
-                "> `.withdraw`                 > `.market`\n"
-                "> `.tip`                      > `.pcf`\n"
-                "> `.affiliate` `.aff`        > `.rush`\n"
-                "> `.price`                   > `.war`\n"
-                "> `.depstatus`               > `.ward`\n\n"
+
+                "**UTILITY**\n"
+                "```"
+                "\n.balance      .bal      .b"
+                "\n.stats        .stat     .p"
+                "\n.daily"
+                "\n.weekly"
+                "\n.rb          .rakeback"
+                "\n.deposit     .depo"
+                "\n.withdraw"
+                "\n.tip"
+                "\n.affiliate   .aff"
+                "\n.price"
+                "\n.depstatus"
+                "```\n"
+
+
+                "**GAMES**\n"
+                "```"
+                "\n.blackjack   .bj"
+                "\n.coinflip    .cf"
+                "\n.dice"
+                "\n.hilo"
+                "\n.limbo"
+                "\n.mines"
+                "\n.roulette"
+                "\n.rush"
+                "\n.war"
+                "\n.ward"
+                "```\n"
+
 
                 "**THREADS**\n"
-                "> `.thread create`\n"
-                "> `.thread add`\n"
-                "> `.thread remove`\n"
-                "> `.thread delete`\n\n"
+                "```"
+                "\n.thread create"
+                "\n.thread add"
+                "\n.thread remove"
+                "\n.thread delete"
+                "```\n"
+
 
                 "**OTHER**\n"
-                "> `.guide`\n"
-                "> `.tos`\n"
-                "> `.rank`\n"
-                "> `.ranks`"
+                "```"
+                "\n.guide"
+                "\n.tos"
+                "\n.rank"
+                "\n.ranks"
+                "```\n"
+
+
+                "Use `.help <command>` for more details."
             )
 
         )
+
 
         await ctx.reply(
             embed=embed
@@ -62,6 +91,7 @@ class Help(commands.Cog):
 
 
 async def setup(bot):
+
     await bot.add_cog(
         Help(bot)
     )
