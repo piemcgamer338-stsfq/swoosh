@@ -143,7 +143,6 @@ draw_text(
     f"Affiliate : £{affiliate:,.2f}",
     18
 )
-
     filename = f"stats_{uuid.uuid4().hex}.png"
 
     output = os.path.join(
