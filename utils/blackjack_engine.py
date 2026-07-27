@@ -26,7 +26,7 @@ def create_deck():
     for suit in SUITS:
         for rank in RANKS:
             deck.append(
-                f"{rank}_{suit}"
+                f"{rank}_of_{suit}"
             )
 
     random.shuffle(deck)
