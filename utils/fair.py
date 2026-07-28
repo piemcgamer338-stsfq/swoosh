@@ -164,10 +164,10 @@ def limbo_result(
         result = 1.01 + (roll / 0.40) * 0.49
 
     elif roll < 0.70:
-        result = 1.50 + ((roll - 0.40) / 0.30) * 0.50
+        result = 1.50 + ((roll - 0.30) / 0.20) * 0.50
 
     elif roll < 0.88:
-        result = 2.00 + ((roll - 0.70) / 0.18) * 1.00
+        result = 2.00 + ((roll - 0.80) / 0.28) * 1.00
 
     elif roll < 0.96:
         result = 3.00 + ((roll - 0.88) / 0.08) * 2.00
